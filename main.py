@@ -1,13 +1,20 @@
 import logging
+import os
+from logging.handlers import RotatingFileHandler
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
-from config import BASE_DIR, LOG_FILE
+from config import BASE_DIR, LOG_FILE, ALLOWED_ORIGINS
 from db import init_db
 from auth import ensure_admin_user
 
-logging.basicConfig(filename=LOG_FILE, level=logging.INFO)
+handler = RotatingFileHandler(LOG_FILE, maxBytes=5*1024*1024, backupCount=3)
+logging.basicConfig(
+    handlers=[handler],
+    level=logging.INFO,
+    format="%(asctime)s %(levelname)s %(name)s: %(message)s"
+)
 logger = logging.getLogger(__name__)
 
 @asynccontextmanager
@@ -19,10 +26,14 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="FATIGEST Pro", version="2.0.0", lifespan=lifespan)
 
-# In production, restrict origins
-app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=ALLOWED_ORIGINS,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
-# Import routes
 from routes.auth_routes import router as auth_router
 from routes.clients import router as clients_router
 from routes.articles import router as articles_router

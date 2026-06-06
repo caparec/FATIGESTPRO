@@ -37,34 +37,37 @@ def init_db():
         ("cli_abo_montant","REAL DEFAULT 0"), ("cli_abo_next","DATE"), ("cli_vil","TEXT")
     ]:
         if col_name not in cols:
-            cursor.execute(f"ALTER TABLE p_cli ADD COLUMN {col_name} {col_type}")
+            try:
+                cursor.execute(f"ALTER TABLE p_cli ADD COLUMN {col_name} {col_type}")
+            except Exception as e:
+                logger.debug("Migration p_cli.%s ignorée : %s", col_name, e)
     cursor.execute("PRAGMA table_info(p_art)")
     art_cols = [c[1] for c in cursor.fetchall()]
     for cn,ct in [("art_faar","TEXT"),("art_pracT","REAL"),("art_prveT","REAL"),("art_stk","REAL DEFAULT 0")]:
         if cn not in art_cols:
             try:
                 cursor.execute(f"ALTER TABLE p_art ADD COLUMN {cn} {ct}")
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug("Migration p_art.%s ignorée : %s", cn, e)
     cursor.execute("""CREATE TABLE IF NOT EXISTS m_fac (
         fac_num INTEGER PRIMARY KEY AUTOINCREMENT, fac_cli_cod TEXT, fac_dat DATE,
         fac_mt_ht REAL, fac_tva REAL DEFAULT 20.0, fac_etat TEXT DEFAULT 'BROUILLON', fac_type TEXT DEFAULT 'PONCTUEL')""")
-    for c in ['fac_tva','fac_type']:
+    for c in ['fac_echeance','fac_notes']:
         try:
             cursor.execute(f"ALTER TABLE m_fac ADD COLUMN {c} TEXT")
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug("Migration m_fac.%s ignorée : %s", c, e)
     cursor.execute("""CREATE TABLE IF NOT EXISTS m_fac_ligne (
         lig_id INTEGER PRIMARY KEY AUTOINCREMENT, lig_fac_num INTEGER,
         lig_art_cod TEXT, lig_art_lib TEXT, lig_qte REAL DEFAULT 1, lig_pu REAL DEFAULT 0,
         FOREIGN KEY(lig_fac_num) REFERENCES m_fac(fac_num))""")
+    try:
+        cursor.execute("ALTER TABLE m_fac_ligne ADD COLUMN lig_remise REAL DEFAULT 0")
+    except Exception as e:
+        logger.debug("Migration m_fac_ligne.lig_remise ignorée : %s", e)
     cursor.execute("""CREATE TABLE IF NOT EXISTS m_reg (
         reg_id INTEGER PRIMARY KEY AUTOINCREMENT, reg_cli_cod TEXT, reg_fac_num INTEGER,
         reg_dat DATE, reg_mt REAL, reg_mode TEXT, reg_ref TEXT)""")
-    try:
-        cursor.execute("ALTER TABLE m_reg ADD COLUMN reg_fac_num INTEGER")
-    except Exception:
-        pass
     cursor.execute("""CREATE TABLE IF NOT EXISTS p_usr (
         usr_id INTEGER PRIMARY KEY AUTOINCREMENT,
         usr_login TEXT UNIQUE NOT NULL,
@@ -92,29 +95,32 @@ def init_db():
         FOREIGN KEY (lig_dev_num) REFERENCES m_devis(dev_num)
     )""")
     try:
-        cursor.execute("ALTER TABLE m_fac ADD COLUMN fac_echeance TEXT DEFAULT '30 jours'")
-    except Exception:
-        pass
-    try:
-        cursor.execute("ALTER TABLE m_fac ADD COLUMN fac_notes TEXT DEFAULT ''")
-    except Exception:
-        pass
-    try:
-        cursor.execute("ALTER TABLE m_fac_ligne ADD COLUMN lig_remise REAL DEFAULT 0")
-    except Exception:
-        pass
-    try:
         cursor.execute("ALTER TABLE m_devis ADD COLUMN dev_notes TEXT DEFAULT ''")
-    except Exception:
-        pass
+    except Exception as e:
+        logger.debug("Migration m_devis.dev_notes ignorée : %s", e)
     try:
         cursor.execute("ALTER TABLE m_devis_ligne ADD COLUMN lig_remise REAL DEFAULT 0")
-    except Exception:
-        pass
+    except Exception as e:
+        logger.debug("Migration m_devis_ligne.lig_remise ignorée : %s", e)
     try:
         cursor.execute("ALTER TABLE p_cli ADD COLUMN cli_notes TEXT DEFAULT ''")
-    except Exception:
-        pass
+    except Exception as e:
+        logger.debug("Migration p_cli.cli_notes ignorée : %s", e)
+    for idx in [
+        "CREATE INDEX IF NOT EXISTS idx_cli_raso ON p_cli(cli_raso)",
+        "CREATE INDEX IF NOT EXISTS idx_fac_dat ON m_fac(fac_dat)",
+        "CREATE INDEX IF NOT EXISTS idx_fac_etat ON m_fac(fac_etat)",
+        "CREATE INDEX IF NOT EXISTS idx_fac_cli ON m_fac(fac_cli_cod)",
+        "CREATE INDEX IF NOT EXISTS idx_reg_dat ON m_reg(reg_dat)",
+        "CREATE INDEX IF NOT EXISTS idx_reg_cli ON m_reg(reg_cli_cod)",
+        "CREATE INDEX IF NOT EXISTS idx_reg_fac ON m_reg(reg_fac_num)",
+        "CREATE INDEX IF NOT EXISTS idx_lig_fac ON m_fac_ligne(lig_fac_num)",
+        "CREATE INDEX IF NOT EXISTS idx_dev_cli ON m_devis(dev_cli_cod)",
+    ]:
+        try:
+            cursor.execute(idx)
+        except Exception as e:
+            logger.debug("Index ignoré : %s", e)
     conn.commit()
     conn.close()
     logger.info("Database initialized")

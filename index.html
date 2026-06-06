@@ -8,44 +8,989 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #f1f5f9; }
+        /* ── Typography ── */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap');
+
+        /* ── Design System Variables ── */
+        :root {
+            /* Primary */
+            --color-primary: #4f46e5;
+            --color-primary-light: #e0e7ff;
+            --color-primary-dark: #3730a3;
+            --color-primary-alpha-20: rgba(79,70,229,0.2);
+            /* Secondary */
+            --color-secondary: #64748b;
+            --color-secondary-light: #f1f5f9;
+            --color-secondary-dark: #475569;
+            /* Success */
+            --color-success: #10b981;
+            --color-success-light: #d1fae5;
+            --color-success-dark: #047857;
+            /* Danger */
+            --color-danger: #ef4444;
+            --color-danger-light: #fee2e2;
+            --color-danger-dark: #b91c1c;
+            /* Warning */
+            --color-warning: #f59e0b;
+            --color-warning-light: #fef3c7;
+            --color-warning-dark: #b45309;
+            /* Info */
+            --color-info: #3b82f6;
+            --color-info-light: #dbeafe;
+            --color-info-dark: #1d4ed8;
+            /* Purple accent */
+            --color-accent: #8b5cf6;
+            --color-accent-light: #ede9fe;
+
+            /* Surface */
+            --color-surface-page: #f1f5f9;
+            --color-surface-card: #ffffff;
+            --color-surface-sidebar: #ffffff;
+            --color-surface-input: #f8fafc;
+            --color-surface-table-hover: #f8fafc;
+            --color-surface-table-stripe: #f8fafc;
+            --color-surface-modal: #ffffff;
+
+            /* Text */
+            --color-text-primary: #1e293b;
+            --color-text-secondary: #64748b;
+            --color-text-tertiary: #94a3b8;
+            --color-text-inverse: #ffffff;
+            --color-text-link: var(--color-primary);
+
+            /* Border */
+            --color-border: #e2e8f0;
+            --color-border-light: #f1f5f9;
+
+            /* Typography scale */
+            --font-family: 'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, sans-serif;
+            --font-mono: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace;
+            --text-xs: 10px;
+            --text-sm: 13px;
+            --text-base: 14px;
+            --text-lg: 16px;
+            --text-xl: 20px;
+            --text-2xl: 28px;
+
+            /* Font weights */
+            --weight-regular: 400;
+            --weight-medium: 500;
+            --weight-semibold: 600;
+            --weight-bold: 700;
+            --weight-black: 800;
+
+            /* Spacing scale */
+            --space-1: 4px;
+            --space-2: 8px;
+            --space-3: 12px;
+            --space-4: 16px;
+            --space-5: 20px;
+            --space-6: 24px;
+            --space-8: 32px;
+            --space-10: 40px;
+            --space-12: 48px;
+            --space-16: 64px;
+
+            /* Border radius */
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-lg: 16px;
+            --radius-xl: 20px;
+            --radius-full: 9999px;
+
+            /* Shadows */
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04);
+            --shadow-lg: 0 12px 36px rgba(0,0,0,0.12), 0 4px 12px rgba(0,0,0,0.06);
+
+            /* Transitions */
+            --transition-fast: 150ms ease;
+            --transition-normal: 250ms ease;
+            --transition-slow: 350ms ease;
+
+            /* Z-index */
+            --z-sidebar: 30;
+            --z-header: 40;
+            --z-modal-overlay: 90;
+            --z-modal: 100;
+            --z-toast: 200;
+            --z-tooltip: 150;
+        }
+
+        /* ── Dark Mode ── */
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --color-primary: #818cf8;
+                --color-primary-light: #312e81;
+                --color-primary-dark: #a5b4fc;
+                --color-primary-alpha-20: rgba(129,140,248,0.2);
+
+                --color-surface-page: #0f172a;
+                --color-surface-card: #1e293b;
+                --color-surface-sidebar: #1e293b;
+                --color-surface-input: #1e293b;
+                --color-surface-table-hover: #1e293b;
+                --color-surface-table-stripe: #1e293b;
+                --color-surface-modal: #1e293b;
+
+                --color-text-primary: #f1f5f9;
+                --color-text-secondary: #94a3b8;
+                --color-text-tertiary: #64748b;
+                --color-text-inverse: #0f172a;
+                --color-text-link: var(--color-primary);
+
+                --color-border: #334155;
+                --color-border-light: #1e293b;
+
+                --shadow-sm: 0 1px 3px rgba(0,0,0,0.3), 0 1px 2px rgba(0,0,0,0.2);
+                --shadow-md: 0 4px 12px rgba(0,0,0,0.4), 0 2px 4px rgba(0,0,0,0.2);
+                --shadow-lg: 0 12px 36px rgba(0,0,0,0.5), 0 4px 12px rgba(0,0,0,0.3);
+            }
+        }
+
+        /* ── Base ── */
+        body {
+            font-family: var(--font-family);
+            background: var(--color-surface-page);
+            color: var(--color-text-primary);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
         @media print { .no-print { display:none!important; } }
-        .modal-overlay { background: rgba(15,23,42,0.6); backdrop-filter: blur(4px); }
-        .field-valid { border-color: #10b981!important; background: #f0fdf4!important; }
-        .field-invalid { border-color: #ef4444!important; background: #fef2f2!important; }
-        .form-error-msg { color: #ef4444; font-size: 10px; font-weight: 700; margin-top: 2px; display: none; }
-        .field-required::after { content: ' *'; color: #ef4444; }
+
+        /* ── Modal Overlay ── */
+        .modal-overlay {
+            background: rgba(15,23,42,0.6);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+        }
+
+        /* ── Form Validation ── */
+        .field-valid { border-color: var(--color-success)!important; background: var(--color-success-light)!important; }
+        .field-invalid { border-color: var(--color-danger)!important; background: var(--color-danger-light)!important; }
+        .form-error-msg { color: var(--color-danger); font-size: var(--text-xs); font-weight: var(--weight-bold); margin-top: var(--space-1); display: none; }
+        .field-required::after { content: ' *'; color: var(--color-danger); }
         .btn-loading { pointer-events: none; opacity: 0.7; }
-        input, select, textarea { transition: border-color 0.2s, background 0.2s; }
-        .unsaved-dot { width: 8px; height: 8px; background: #f59e0b; border-radius: 50%; display: inline-block; }
+        input, select, textarea { transition: border-color var(--transition-fast), background var(--transition-fast); }
+        .unsaved-dot { width: 8px; height: 8px; background: var(--color-warning); border-radius: 50%; display: inline-block; }
+
+        /* ── Scrollbar ── */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: var(--radius-full); }
+        ::-webkit-scrollbar-thumb:hover { background: var(--color-text-tertiary); }
+
+        /* ── Transition Théme ── */
+        *, *::before, *::after {
+            transition: background-color var(--transition-normal),
+                        border-color var(--transition-normal),
+                        color var(--transition-normal),
+                        box-shadow var(--transition-normal);
+        }
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { transition-duration: 0s!important; animation-duration: 0s!important; }
+        }
+
+        /* ────────────────────────────────────────────── */
+        /*  COMPOSANTS — BOUTONS                         */
+        /* ────────────────────────────────────────────── */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-2);
+            font-family: var(--font-family);
+            font-weight: var(--weight-bold);
+            font-size: var(--text-sm);
+            line-height: 1;
+            padding: 11px 20px;
+            border: 1px solid transparent;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            user-select: none;
+            text-decoration: none;
+            white-space: nowrap;
+            transition: background var(--transition-fast),
+                        color var(--transition-fast),
+                        border-color var(--transition-fast),
+                        box-shadow var(--transition-fast),
+                        transform var(--transition-fast);
+        }
+        .btn:active { transform: scale(0.97); }
+        .btn:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+
+        .btn-primary { background: var(--color-primary); color: #fff; }
+        .btn-primary:hover { background: var(--color-primary-dark); }
+
+        .btn-secondary { background: var(--color-secondary-light); color: var(--color-text-primary); border-color: var(--color-border); }
+        .btn-secondary:hover { background: var(--color-border); }
+
+        .btn-success { background: var(--color-success); color: #fff; }
+        .btn-success:hover { background: var(--color-success-dark); }
+
+        .btn-danger { background: var(--color-danger); color: #fff; }
+        .btn-danger:hover { background: var(--color-danger-dark); }
+
+        .btn-warning { background: var(--color-warning); color: #fff; }
+        .btn-warning:hover { background: var(--color-warning-dark); }
+
+        .btn-ghost { background: transparent; color: var(--color-text-secondary); border-color: transparent; }
+        .btn-ghost:hover { background: var(--color-secondary-light); color: var(--color-text-primary); }
+
+        .btn-outline { background: transparent; color: var(--color-primary); border-color: var(--color-primary); }
+        .btn-outline:hover { background: var(--color-primary-light); }
+
+        .btn-sm { padding: 7px 12px; font-size: var(--text-xs); border-radius: var(--radius-sm); }
+        .btn-lg { padding: 14px 28px; font-size: var(--text-base); border-radius: var(--radius-md); }
+
+        .btn-icon { width: 36px; height: 36px; padding: 0; border-radius: var(--radius-sm); }
+        .btn-icon.btn-sm { width: 30px; height: 30px; }
+        .btn-icon.btn-lg { width: 44px; height: 44px; }
+
+        .btn[disabled], .btn.disabled { opacity: 0.5; pointer-events: none; }
+
+        /* ────────────────────────────────────────────── */
+        /*  COMPOSANTS — FORMULAIRES                      */
+        /* ────────────────────────────────────────────── */
+        .form-group { display: flex; flex-direction: column; gap: var(--space-1); }
+
+        .form-label {
+            font-size: var(--text-sm);
+            font-weight: var(--weight-semibold);
+            color: var(--color-text-primary);
+            display: flex;
+            align-items: center;
+            gap: var(--space-1);
+        }
+
+        .form-hint {
+            font-size: var(--text-xs);
+            color: var(--color-text-tertiary);
+            margin-top: 2px;
+        }
+
+        .input,
+        .select,
+        .textarea {
+            width: 100%;
+            font-family: var(--font-family);
+            font-size: var(--text-sm);
+            color: var(--color-text-primary);
+            background: var(--color-surface-input);
+            border: 1.5px solid var(--color-border);
+            border-radius: var(--radius-sm);
+            padding: 9px 12px;
+            outline: none;
+            transition: border-color var(--transition-fast),
+                        box-shadow var(--transition-fast);
+        }
+        .input:focus,
+        .select:focus,
+        .textarea:focus {
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 3px var(--color-primary-alpha-20);
+        }
+        .input::placeholder { color: var(--color-text-tertiary); }
+
+        .select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            padding-right: 36px;
+            cursor: pointer;
+        }
+
+        .textarea { resize: vertical; min-height: 80px; line-height: 1.5; }
+
+        .input-sm { padding: 5px 10px; font-size: var(--text-xs); }
+
+        /* ── Toggle Switch ── */
+        .toggle {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-2);
+            cursor: pointer;
+            font-size: var(--text-sm);
+            color: var(--color-text-secondary);
+            user-select: none;
+        }
+        .toggle input { position: absolute; opacity: 0; width: 0; height: 0; }
+        .toggle .track {
+            width: 38px;
+            height: 22px;
+            background: var(--color-border);
+            border-radius: var(--radius-full);
+            position: relative;
+            transition: background var(--transition-fast);
+            flex-shrink: 0;
+        }
+        .toggle .track::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 18px;
+            height: 18px;
+            background: #fff;
+            border-radius: 50%;
+            transition: transform var(--transition-fast);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+        }
+        .toggle input:checked + .track { background: var(--color-primary); }
+        .toggle input:checked + .track::after { transform: translateX(16px); }
+        .toggle input:focus-visible + .track { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+
+        /* ────────────────────────────────────────────── */
+        /*  COMPOSANTS — BADGES                          */
+        /* ────────────────────────────────────────────── */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            font-size: var(--text-xs);
+            font-weight: var(--weight-semibold);
+            padding: 2px 10px;
+            border-radius: var(--radius-full);
+            white-space: nowrap;
+            line-height: 1.6;
+        }
+        .badge-primary { background: var(--color-primary-light); color: var(--color-primary-dark); }
+        .badge-success { background: var(--color-success-light); color: var(--color-success-dark); }
+        .badge-danger { background: var(--color-danger-light); color: var(--color-danger-dark); }
+        .badge-warning { background: var(--color-warning-light); color: var(--color-warning-dark); }
+        .badge-info { background: var(--color-info-light); color: var(--color-info-dark); }
+        .badge-secondary { background: var(--color-secondary-light); color: var(--color-secondary-dark); }
+
+        /* ────────────────────────────────────────────── */
+        /*  COMPOSANTS — TABLEAUX                         */
+        /* ────────────────────────────────────────────── */
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: var(--text-sm);
+        }
+        .table th {
+            padding: 12px 16px;
+            font-size: var(--text-xs);
+            font-weight: var(--weight-bold);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: var(--color-text-secondary);
+            background: var(--color-surface-table-stripe);
+            border-bottom: 1.5px solid var(--color-border);
+            text-align: left;
+            white-space: nowrap;
+        }
+        .table th.sortable { cursor: pointer; }
+        .table th.sortable:hover { color: var(--color-primary); }
+        .table th.actions { width: 60px; text-align: center; }
+        .table th.checkbox { width: 36px; padding-right: 0; }
+        .table th.right { text-align: right; }
+        .table th.center { text-align: center; }
+
+        .table td {
+            padding: 10px 16px;
+            color: var(--color-text-primary);
+            border-bottom: 1px solid var(--color-border-light);
+            vertical-align: middle;
+        }
+        .table td.right { text-align: right; font-variant-numeric: tabular-nums; }
+        .table td.center { text-align: center; }
+        .table td.mono { font-family: var(--font-mono); font-size: var(--text-xs); }
+        .table td.bold { font-weight: var(--weight-bold); }
+        .table td.actions { text-align: center; white-space: nowrap; }
+
+        .table tr:last-child td { border-bottom: none; }
+        .table tbody tr { transition: background var(--transition-fast); }
+        .table tbody tr:hover { background: var(--color-surface-table-hover); }
+        .table tbody tr.selected { background: var(--color-primary-light); }
+
+        .table-striped tbody tr:nth-child(even) { background: var(--color-surface-table-stripe); }
+        .table-striped tbody tr:nth-child(even):hover { background: var(--color-surface-table-hover); }
+
+        .table-sm th { padding: 8px 12px; }
+        .table-sm td { padding: 6px 12px; }
+
+        .table-card {
+            background: var(--color-surface-card);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+        }
+        .table-card .table th:first-child { padding-left: 20px; }
+        .table-card .table td:first-child { padding-left: 20px; }
+        .table-card .table th:last-child { padding-right: 20px; }
+        .table-card .table td:last-child { padding-right: 20px; }
+
+        .table-empty {
+            padding: 32px 16px;
+            text-align: center;
+            color: var(--color-text-tertiary);
+            font-size: var(--text-sm);
+        }
+
+        .table-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: var(--space-4);
+            padding: var(--space-4) var(--space-5);
+            background: var(--color-surface-card);
+            border-bottom: 1px solid var(--color-border);
+        }
+        .table-header:first-child { border-radius: var(--radius-md) var(--radius-md) 0 0; }
+        .table-title { font-size: var(--text-lg); font-weight: var(--weight-bold); color: var(--color-text-primary); }
+
+        /* ────────────────────────────────────────────── */
+        /*  COMPOSANTS — STATS CARDS & DASHBOARD          */
+        /* ────────────────────────────────────────────── */
+        .stat-row {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: var(--space-4);
+            margin-bottom: var(--space-8);
+        }
+        @media (min-width: 768px) { .stat-row { grid-template-columns: repeat(6, 1fr); } }
+
+        .stat-card {
+            background: var(--color-surface-card);
+            padding: var(--space-4);
+            border-radius: var(--radius-lg);
+            border-left: 4px solid var(--color-primary);
+            box-shadow: var(--shadow-sm);
+            transition: box-shadow var(--transition-fast), transform var(--transition-fast);
+        }
+        .stat-card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-1px);
+        }
+        .stat-card .stat-label {
+            font-size: var(--text-xs);
+            font-weight: var(--weight-bold);
+            color: var(--color-text-tertiary);
+            text-transform: uppercase;
+            margin-bottom: var(--space-1);
+        }
+        .stat-card .stat-value {
+            font-size: var(--text-2xl);
+            font-weight: var(--weight-black);
+            color: var(--color-text-primary);
+        }
+        .stat-card.primary   { border-left-color: var(--color-primary); }
+        .stat-card.primary .stat-value   { color: var(--color-primary); }
+        .stat-card.success   { border-left-color: var(--color-success); }
+        .stat-card.success .stat-value   { color: var(--color-success); }
+        .stat-card.warning   { border-left-color: var(--color-warning); }
+        .stat-card.warning .stat-value   { color: var(--color-warning); }
+        .stat-card.danger    { border-left-color: var(--color-danger); }
+        .stat-card.danger .stat-value    { color: var(--color-danger); }
+        .stat-card.info      { border-left-color: var(--color-info); }
+        .stat-card.info .stat-value      { color: var(--color-info); }
+        .stat-card.purple    { border-left-color: var(--color-accent); }
+        .stat-card.purple .stat-value    { color: var(--color-accent); }
+
+        .stat-card-sm { padding: var(--space-3); }
+        .stat-card-sm .stat-label { font-size: 9px; }
+        .stat-card-sm .stat-value { font-size: var(--text-lg); }
+
+        .chart-card {
+            background: var(--color-surface-card);
+            border-radius: var(--radius-lg);
+            padding: var(--space-6);
+            border: 1px solid var(--color-border);
+            box-shadow: var(--shadow-sm);
+        }
+        .chart-card h3 {
+            font-size: var(--text-sm);
+            font-weight: var(--weight-black);
+            margin-bottom: var(--space-4);
+            color: var(--color-text-primary);
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: var(--space-6);
+        }
+        @media (min-width: 1024px) { .dashboard-grid { grid-template-columns: repeat(2, 1fr); } }
+
+        /* ────────────────────────────────────────────── */
+        /*  COMPOSANTS — SIDEBAR                         */
+        /* ────────────────────────────────────────────── */
+        .sidebar {
+            width: 80px;
+            background: #0f172a;
+            color: #fff;
+            padding: var(--space-4);
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100%;
+            z-index: var(--z-sidebar);
+            transition: width var(--transition-normal);
+        }
+        @media (min-width: 1024px) { .sidebar { width: 256px; padding: var(--space-6); } }
+
+        .sidebar-brand {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+            margin-bottom: var(--space-6);
+        }
+        .sidebar-brand .logo {
+            width: 40px;
+            height: 40px;
+            background: var(--color-primary);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .sidebar-brand .brand-text {
+            display: none;
+            font-weight: 800;
+            font-size: var(--text-xl);
+            letter-spacing: -0.03em;
+        }
+        .sidebar-brand .brand-text span { color: var(--color-accent); }
+        @media (min-width: 1024px) { .sidebar-brand .brand-text { display: inline; } }
+
+        .sidebar-nav {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-1);
+            flex: 1;
+        }
+
+        .sidebar-link {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+            padding: 11px 12px;
+            border-radius: var(--radius-md);
+            border: none;
+            background: transparent;
+            color: #94a3b8;
+            font-family: var(--font-family);
+            font-size: var(--text-sm);
+            font-weight: var(--weight-bold);
+            cursor: pointer;
+            transition: background var(--transition-fast), color var(--transition-fast);
+            text-align: left;
+            white-space: nowrap;
+        }
+        .sidebar-link i { width: 20px; flex-shrink: 0; }
+        .sidebar-link .nav-label { display: none; }
+        @media (min-width: 1024px) { .sidebar-link .nav-label { display: inline; } }
+        .sidebar-link:hover { background: #1e293b; color: #fff; }
+        .sidebar-link.active { background: var(--color-primary); color: #fff; box-shadow: 0 4px 12px rgba(79,70,229,0.3); }
+
+        .sidebar-footer {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-1);
+            padding-top: var(--space-4);
+            border-top: 1px solid #1e293b;
+        }
+
+        .sidebar-link.danger { color: #f87171; }
+        .sidebar-link.danger:hover { background: rgba(239,68,68,0.15); color: #fca5a5; }
+
+        .sidebar-link.primary-action { background: var(--color-primary); color: #fff; box-shadow: 0 4px 12px rgba(79,70,229,0.3); }
+        .sidebar-link.primary-action:hover { background: var(--color-primary-dark); }
+
+        .main-content {
+            flex: 1;
+            margin-left: 80px;
+            padding: var(--space-4);
+        }
+        @media (min-width: 1024px) {
+            .main-content { margin-left: 256px; padding: var(--space-10); }
+        }
+
+        /* ────────────────────────────────────────────── */
+        /*  COMPOSANTS — HEADER                          */
+        /* ────────────────────────────────────────────── */
+        .page-header {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: var(--space-4);
+            margin-bottom: var(--space-8);
+        }
+        @media (min-width: 1024px) {
+            .page-header { flex-direction: row; align-items: center; }
+        }
+
+        .page-header .page-title {
+            font-size: 30px;
+            font-weight: var(--weight-black);
+            color: var(--color-text-primary);
+            margin: 0;
+            line-height: 1.2;
+        }
+        .page-header .page-subtitle {
+            color: var(--color-text-secondary);
+            font-size: var(--text-sm);
+            margin: 0;
+        }
+
+        .page-search {
+            position: relative;
+            flex: 1;
+        }
+        @media (min-width: 1024px) { .page-search { flex: none; } }
+        .page-search .search-icon {
+            position: absolute;
+            left: var(--space-4);
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--color-text-tertiary);
+            pointer-events: none;
+        }
+        .page-search .search-input {
+            width: 100%;
+            padding: 11px 16px 11px 44px;
+            background: var(--color-surface-card);
+            border: 1.5px solid var(--color-border);
+            border-radius: var(--radius-lg);
+            outline: none;
+            font-size: var(--text-sm);
+            font-weight: var(--weight-medium);
+            color: var(--color-text-primary);
+            transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+        }
+        .page-search .search-input:focus {
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 3px var(--color-primary-alpha-20);
+        }
+        .page-search .search-input::placeholder { color: var(--color-text-tertiary); }
+        @media (min-width: 1024px) { .page-search .search-input { width: 320px; } }
+
+        .page-toolbar {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            flex-wrap: wrap;
+        }
+
+        /* ────────────────────────────────────────────── */
+        /*  COMPOSANTS — MODALES & DRAWERS               */
+        /* ────────────────────────────────────────────── */
+        .modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(15,23,42,0.6);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            align-items: center;
+            justify-content: center;
+            z-index: var(--z-modal);
+            padding: var(--space-4);
+        }
+        .modal.open { display: flex; }
+
+        .modal-dialog {
+            background: var(--color-surface-modal);
+            border-radius: var(--radius-xl);
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-lg);
+            animation: modalIn 200ms ease-out;
+        }
+        @keyframes modalIn {
+            from { opacity: 0; transform: scale(0.95) translateY(10px); }
+            to   { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        .modal-dialog::-webkit-scrollbar { width: 4px; }
+        .modal-dialog::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: var(--radius-full); }
+
+        .modal-sm  .modal-dialog { max-width: 400px; }
+        .modal-dialog { max-width: 560px; }
+        .modal-lg  .modal-dialog { max-width: 900px; }
+        .modal-xl  .modal-dialog { max-width: 1100px; }
+        .modal-full .modal-dialog { max-width: 100%; min-height: 100vh; border-radius: 0; }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: var(--space-4);
+            padding: var(--space-6) var(--space-8) 0 var(--space-8);
+        }
+        .modal-header h3 {
+            font-size: var(--text-xl);
+            font-weight: var(--weight-black);
+            color: var(--color-text-primary);
+        }
+        .modal-header p {
+            color: var(--color-primary);
+            font-size: var(--text-sm);
+            font-weight: var(--weight-bold);
+        }
+        .modal-close {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            background: transparent;
+            color: var(--color-text-tertiary);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-size: var(--text-lg);
+            transition: background var(--transition-fast), color var(--transition-fast);
+            flex-shrink: 0;
+        }
+        .modal-close:hover { background: var(--color-secondary-light); color: var(--color-text-primary); }
+
+        .modal-body { padding: var(--space-6) var(--space-8); }
+
+        .modal-footer {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: var(--space-2);
+            padding: 0 var(--space-8) var(--space-6) var(--space-8);
+        }
+
+        /* ── Confirm variant ── */
+        .modal-confirm .modal-dialog { max-width: 380px; text-align: center; }
+        .modal-confirm .modal-icon {
+            width: 56px;
+            height: 56px;
+            background: var(--color-danger-light);
+            border-radius: var(--radius-lg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto var(--space-4);
+        }
+        .modal-confirm .modal-icon i { color: var(--color-danger); font-size: var(--text-xl); }
+        .modal-confirm .modal-body { padding-top: 0; }
+        .modal-confirm .modal-footer { justify-content: center; }
+
+        /* ── Drawer ── */
+        .drawer {
+            position: fixed;
+            inset: 0;
+            background: rgba(15,23,42,0.4);
+            display: none;
+            z-index: var(--z-modal);
+        }
+        .drawer.open { display: block; }
+        .drawer-panel {
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            width: 480px;
+            max-width: 100vw;
+            background: var(--color-surface-modal);
+            box-shadow: var(--shadow-lg);
+            overflow-y: auto;
+            animation: drawerIn 200ms ease-out;
+        }
+        @keyframes drawerIn {
+            from { transform: translateX(100%); }
+            to   { transform: translateX(0); }
+        }
+
+        /* ────────────────────────────────────────────── */
+        /*  COMPOSANTS — LOGIN SCREEN                    */
+        /* ────────────────────────────────────────────── */
+        .login-screen {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #0f172a, #1e293b, #1e1b4b);
+        }
+        .login-card {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border-radius: var(--radius-xl);
+            padding: var(--space-10);
+            width: 100%;
+            max-width: 420px;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        .login-card .logo {
+            width: 64px;
+            height: 64px;
+            background: var(--color-primary);
+            border-radius: var(--radius-lg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto var(--space-4);
+            box-shadow: 0 8px 24px rgba(79,70,229,0.3);
+        }
+        .login-card .logo i { color: #fff; font-size: 24px; }
+        .login-card h1 {
+            font-size: 30px;
+            font-weight: var(--weight-black);
+            color: var(--color-text-primary);
+            text-align: center;
+        }
+        .login-card h1 span { color: var(--color-primary); }
+        .login-card .subtitle {
+            color: var(--color-text-secondary);
+            font-size: var(--text-sm);
+            text-align: center;
+            margin-top: var(--space-1);
+            margin-bottom: var(--space-8);
+        }
+        .login-card .form-group { margin-bottom: var(--space-5); }
+        .login-card .form-label {
+            font-size: var(--text-xs);
+            font-weight: var(--weight-bold);
+            color: var(--color-text-secondary);
+            padding: 0 var(--space-1);
+            display: block;
+            margin-bottom: var(--space-1);
+        }
+        .login-card .form-input {
+            width: 100%;
+            padding: 15px 16px;
+            background: var(--color-surface-input);
+            border: 2px solid var(--color-border-light);
+            border-radius: var(--radius-lg);
+            outline: none;
+            font-weight: var(--weight-bold);
+            color: var(--color-text-primary);
+            transition: border-color var(--transition-fast);
+        }
+        .login-card .form-input:focus { border-color: var(--color-primary); }
+        .login-card .login-btn {
+            width: 100%;
+            padding: 15px;
+            background: var(--color-primary);
+            color: #fff;
+            border: none;
+            border-radius: var(--radius-lg);
+            font-weight: var(--weight-black);
+            font-size: var(--text-lg);
+            cursor: pointer;
+            transition: background var(--transition-fast);
+        }
+        .login-card .login-btn:hover { background: var(--color-primary-dark); }
+        .login-error {
+            color: var(--color-danger);
+            font-size: var(--text-sm);
+            font-weight: var(--weight-bold);
+            text-align: center;
+            display: none;
+        }
+
+        /* ────────────────────────────────────────────── */
+        /*  IMPRESSION / PDF                             */
+        /* ────────────────────────────────────────────── */
+        @media print {
+            .no-print { display: none !important; }
+            body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+            .print-page {
+                padding: 20px;
+                font-size: 12px;
+                color: #000;
+            }
+            .print-page h1 { font-size: 20px; margin-bottom: 4px; }
+            .print-page h2 { font-size: 14px; margin: 20px 0 10px; }
+            .print-page .sub { color: #666; font-size: 12px; margin-bottom: 20px; }
+            .print-page table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+            .print-page th {
+                background: #f1f5f9 !important;
+                text-align: left;
+                padding: 6px 10px;
+                font-size: 9px;
+                text-transform: uppercase;
+                color: #333;
+            }
+            .print-page td {
+                padding: 6px 10px;
+                border-bottom: 1px solid #e2e8f0;
+                font-size: 11px;
+            }
+            .print-page .text-right { text-align: right; }
+            .print-page .text-red { color: #dc2626; }
+            .print-page .text-emerald { color: #059669; }
+            .print-page .cards {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 12px;
+                margin-bottom: 20px;
+            }
+            .print-page .card {
+                border: 1px solid #e2e8f0;
+                border-radius: 6px;
+                padding: 12px;
+            }
+            .print-page .card-label { font-size: 9px; font-weight: bold; text-transform: uppercase; color: #94a3b8; }
+            .print-page .card-val { font-size: 18px; font-weight: bold; margin-top: 4px; }
+            @page { margin: 15mm; }
+        }
+
+        /* ────────────────────────────────────────────── */
+        /*  MICRO-INTERACTIONS                            */
+        /* ────────────────────────────────────────────── */
+        .fade-in { animation: fadeIn 300ms ease; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .slide-up { animation: slideUp 300ms ease; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+        .slide-down { animation: slideDown 200ms ease; }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+
+        .scale-in { animation: scaleIn 200ms ease; }
+        @keyframes scaleIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+
+        .pulse-soft { animation: pulseSoft 2s ease-in-out infinite; }
+        @keyframes pulseSoft { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
+
+        .skeleton {
+            background: linear-gradient(90deg, var(--color-border-light) 25%, var(--color-border) 50%, var(--color-border-light) 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            border-radius: var(--radius-sm);
+        }
+        @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
     </style>
 </head>
 <body class="text-slate-800">
 
 <!-- ===== LOGIN SCREEN ===== -->
-<div id="login-screen" class="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-950">
-    <div class="bg-white/95 backdrop-blur rounded-[3rem] p-10 w-full max-w-md shadow-2xl border border-white/20">
+<div id="login-screen" class="login-screen">
+    <div class="login-card">
         <div class="text-center mb-8">
-            <div class="w-16 h-16 bg-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-indigo-500/30">
-                <i class="fas fa-file-invoice text-white text-2xl"></i>
+            <div class="logo">
+                <i class="fas fa-file-invoice"></i>
             </div>
-            <h1 class="text-3xl font-black text-slate-900">FATIGEST <span class="text-indigo-600">PRO</span></h1>
-            <p class="text-slate-500 text-sm mt-1">Gestion commerciale</p>
+            <h1>FATIGEST <span>PRO</span></h1>
+            <p class="subtitle">Gestion commerciale</p>
         </div>
-        <form id="login-form" class="space-y-5">
-            <div>
-                <label class="text-xs font-bold text-slate-500 px-1">Identifiant</label>
-                <input type="text" id="login-user" value="admin" required class="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none focus:border-indigo-500 font-bold transition">
+        <form id="login-form">
+            <div class="form-group">
+                <label class="form-label">Identifiant</label>
+                <input type="text" id="login-user" value="admin" required class="form-input">
             </div>
-            <div>
-                <label class="text-xs font-bold text-slate-500 px-1">Mot de passe</label>
-                <input type="password" id="login-pass" required class="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none focus:border-indigo-500 font-bold transition">
+            <div class="form-group">
+                <label class="form-label">Mot de passe</label>
+                <input type="password" id="login-pass" required class="form-input">
             </div>
-            <button type="submit" class="w-full bg-indigo-600 text-white py-4 rounded-2xl font-black text-lg shadow-xl hover:bg-indigo-700 transition">
+            <button type="submit" class="login-btn">
                 <i class="fas fa-right-to-bracket mr-2"></i>Connexion
             </button>
-            <p id="login-error" class="text-red-500 text-sm font-bold text-center hidden"></p>
+            <p id="login-error" class="login-error"></p>
         </form>
     </div>
 </div>
@@ -53,110 +998,110 @@
 <!-- ===== MAIN APP ===== -->
 <div id="app" class="hidden">
 <div class="flex min-h-screen">
-    <aside class="w-20 lg:w-64 bg-slate-900 text-white p-4 lg:p-6 flex flex-col fixed h-full z-50">
-        <div class="mb-6 flex items-center gap-3">
-            <div class="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center shrink-0">
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <div class="logo">
                 <i class="fas fa-file-invoice text-white"></i>
             </div>
-            <span class="hidden lg:inline font-extrabold text-xl tracking-tighter">FATIGEST <span class="text-indigo-400">PRO</span></span>
+            <span class="brand-text">FATIGEST <span>PRO</span></span>
         </div>
-        <nav class="space-y-1 flex-1 text-sm">
-            <button onclick="switchView('dashboard')" id="btn-dashboard" class="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-slate-800 transition text-slate-400 hover:text-white">
-                <i class="fas fa-chart-pie w-5"></i><span class="hidden lg:inline font-bold">Tableau de Bord</span>
+        <nav class="sidebar-nav">
+            <button onclick="switchView('dashboard')" id="btn-dashboard" class="sidebar-link active">
+                <i class="fas fa-chart-pie"></i><span class="nav-label">Tableau de Bord</span>
             </button>
-            <button onclick="switchView('clients')" id="btn-clients" class="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-slate-800 transition text-slate-400 hover:text-white">
-                <i class="fas fa-users w-5"></i><span class="hidden lg:inline font-bold">Clients</span>
+            <button onclick="switchView('clients')" id="btn-clients" class="sidebar-link">
+                <i class="fas fa-users"></i><span class="nav-label">Clients</span>
             </button>
-            <button onclick="switchView('articles')" id="btn-articles" class="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-slate-800 transition text-slate-400 hover:text-white">
-                <i class="fas fa-box w-5"></i><span class="hidden lg:inline font-bold">Articles</span>
+            <button onclick="switchView('articles')" id="btn-articles" class="sidebar-link">
+                <i class="fas fa-box"></i><span class="nav-label">Articles</span>
             </button>
-            <button onclick="switchView('factures')" id="btn-factures" class="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-slate-800 transition text-slate-400 hover:text-white">
-                <i class="fas fa-file-invoice-dollar w-5"></i><span class="hidden lg:inline font-bold">Factures</span>
+            <button onclick="switchView('factures')" id="btn-factures" class="sidebar-link">
+                <i class="fas fa-file-invoice-dollar"></i><span class="nav-label">Factures</span>
             </button>
-            <button onclick="switchView('devis')" id="btn-devis" class="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-slate-800 transition text-slate-400 hover:text-white">
-                <i class="fas fa-file-pen w-5"></i><span class="hidden lg:inline font-bold">Devis</span>
+            <button onclick="switchView('devis')" id="btn-devis" class="sidebar-link">
+                <i class="fas fa-file-pen"></i><span class="nav-label">Devis</span>
             </button>
-            <button onclick="switchView('reglements')" id="btn-reglements" class="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-slate-800 transition text-slate-400 hover:text-white">
-                <i class="fas fa-credit-card w-5"></i><span class="hidden lg:inline font-bold">Règlements</span>
+            <button onclick="switchView('reglements')" id="btn-reglements" class="sidebar-link">
+                <i class="fas fa-credit-card"></i><span class="nav-label">Règlements</span>
             </button>
-            <button onclick="switchView('abonnements')" id="btn-abonnements" class="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-slate-800 transition text-slate-400 hover:text-white">
-                <i class="fas fa-sync w-5"></i><span class="hidden lg:inline font-bold">Abonnements</span>
+            <button onclick="switchView('abonnements')" id="btn-abonnements" class="sidebar-link">
+                <i class="fas fa-sync"></i><span class="nav-label">Abonnements</span>
             </button>
-            <button onclick="switchView('rapports')" id="btn-rapports" class="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-slate-800 transition text-slate-400 hover:text-white">
-                <i class="fas fa-chart-bar w-5"></i><span class="hidden lg:inline font-bold">Rapports</span>
+            <button onclick="switchView('rapports')" id="btn-rapports" class="sidebar-link">
+                <i class="fas fa-chart-bar"></i><span class="nav-label">Rapports</span>
             </button>
-            <button onclick="switchView('sauvegarde')" id="btn-sauvegarde" class="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-slate-800 transition text-slate-400 hover:text-white">
-                <i class="fas fa-database w-5"></i><span class="hidden lg:inline font-bold">Sauvegarde</span>
+            <button onclick="switchView('sauvegarde')" id="btn-sauvegarde" class="sidebar-link">
+                <i class="fas fa-database"></i><span class="nav-label">Sauvegarde</span>
             </button>
         </nav>
-        <div class="space-y-1 pt-4 border-t border-slate-800">
-            <button id="btn-new" onclick="newItem(currentView)" class="w-full flex items-center gap-3 p-3 rounded-xl bg-indigo-600 text-white shadow-lg shadow-indigo-500/20 text-sm">
-                <i class="fas fa-plus w-5"></i><span class="hidden lg:inline font-bold text-sm" id="btn-new-label">Nouveau Client</span>
+        <div class="sidebar-footer">
+            <button id="btn-new" onclick="newItem(currentView)" class="sidebar-link primary-action">
+                <i class="fas fa-plus"></i><span class="nav-label" id="btn-new-label">Nouveau Client</span>
             </button>
-            <button onclick="logout()" class="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-red-900/30 transition text-red-400 hover:text-red-300 text-sm mt-2">
-                <i class="fas fa-sign-out-alt w-5"></i><span class="hidden lg:inline font-bold">Déconnexion</span>
+            <button onclick="logout()" class="sidebar-link danger">
+                <i class="fas fa-sign-out-alt"></i><span class="nav-label">Déconnexion</span>
             </button>
         </div>
     </aside>
 
-    <main class="flex-1 ml-20 lg:ml-64 p-4 lg:p-10">
-        <header class="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-8 gap-4">
+    <main class="main-content">
+        <header class="page-header">
             <div>
-                <h1 id="view-title" class="text-3xl font-black text-slate-900">Tableau de Bord</h1>
-                <p id="view-subtitle" class="text-slate-500 text-sm">Vue d'ensemble.</p>
+                <h1 id="view-title" class="page-title">Tableau de Bord</h1>
+                <p id="view-subtitle" class="page-subtitle">Vue d'ensemble.</p>
             </div>
-            <div class="relative flex-1 lg:flex-none">
-                <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                <input type="text" id="search" oninput="loadData()" placeholder="Rechercher..." class="w-full lg:w-80 pl-11 pr-4 py-3 bg-white border border-slate-200 rounded-2xl outline-none focus:ring-4 ring-indigo-500/10 text-sm font-medium">
+            <div class="page-search">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" id="search" oninput="loadData()" placeholder="Rechercher..." class="search-input">
             </div>
         </header>
 
         <!-- STATS ROW -->
-        <div class="grid grid-cols-2 md:grid-cols-6 gap-4 mb-8 stats-row">
-            <div class="bg-white p-4 rounded-2xl border-l-4 border-indigo-500">
-                <p class="text-[10px] font-bold text-slate-400 uppercase">Clients</p>
-                <p id="stat-clients" class="text-2xl font-black">-</p>
+        <div class="stat-row">
+            <div class="stat-card primary">
+                <p class="stat-label">Clients</p>
+                <p id="stat-clients" class="stat-value">-</p>
             </div>
-            <div class="bg-white p-4 rounded-2xl border-l-4 border-cyan-500">
-                <p class="text-[10px] font-bold text-slate-400 uppercase">Articles</p>
-                <p id="stat-articles" class="text-2xl font-black">-</p>
+            <div class="stat-card info">
+                <p class="stat-label">Articles</p>
+                <p id="stat-articles" class="stat-value">-</p>
             </div>
-            <div class="bg-white p-4 rounded-2xl border-l-4 border-purple-500">
-                <p class="text-[10px] font-bold text-slate-400 uppercase">Abonnements</p>
-                <p id="stat-abonnements" class="text-2xl font-black">-</p>
+            <div class="stat-card purple">
+                <p class="stat-label">Abonnements</p>
+                <p id="stat-abonnements" class="stat-value">-</p>
             </div>
-            <div class="bg-white p-4 rounded-2xl border-l-4 border-orange-500">
-                <p class="text-[10px] font-bold text-slate-400 uppercase">Brouillons</p>
-                <p id="stat-brouillons" class="text-2xl font-black text-orange-600">-</p>
+            <div class="stat-card warning">
+                <p class="stat-label">Brouillons</p>
+                <p id="stat-brouillons" class="stat-value">-</p>
             </div>
-            <div class="bg-white p-4 rounded-2xl border-l-4 border-emerald-500">
-                <p class="text-[10px] font-bold text-slate-400 uppercase">CA (valide)</p>
-                <p id="stat-ca" class="text-2xl font-black text-emerald-600">-</p>
+            <div class="stat-card success">
+                <p class="stat-label">CA (valide)</p>
+                <p id="stat-ca" class="stat-value">-</p>
             </div>
-            <div class="bg-white p-4 rounded-2xl border-l-4 border-blue-500">
-                <p class="text-[10px] font-bold text-slate-400 uppercase">Règlements</p>
-                <p id="stat-reglements" class="text-2xl font-black text-blue-600">-</p>
+            <div class="stat-card primary">
+                <p class="stat-label">Règlements</p>
+                <p id="stat-reglements" class="stat-value">-</p>
             </div>
         </div>
 
         <!-- BATCH SELECTION BAR -->
-        <div id="batch-bar" class="hidden fixed bottom-0 left-0 right-0 z-50 bg-indigo-600 text-white px-6 py-3 shadow-2xl flex items-center justify-between">
+        <div id="batch-bar" class="hidden fixed bottom-0 left-0 right-0 z-50 bg-primary px-6 py-3 shadow-2xl flex items-center justify-between" style="background:var(--color-primary)">
             <div><span class="font-bold" id="batch-count">0</span> sélectionné(s)</div>
             <div class="flex gap-3">
-                <button onclick="batchDelete()" class="bg-red-500 text-white px-5 py-2 rounded-xl font-bold text-sm hover:bg-red-600"><i class="fas fa-trash mr-1"></i>Supprimer</button>
-                <button onclick="batchClear()" class="bg-white/20 text-white px-5 py-2 rounded-xl font-bold text-sm hover:bg-white/30">Annuler</button>
+                <button onclick="batchDelete()" class="btn btn-sm" style="background:var(--color-danger);color:#fff"><i class="fas fa-trash mr-1"></i>Supprimer</button>
+                <button onclick="batchClear()" class="btn btn-sm" style="background:rgba(255,255,255,0.2);color:#fff;border-color:transparent">Annuler</button>
             </div>
         </div>
 
         <!-- DASHBOARD -->
-        <div id="list-dashboard" class="space-y-6">
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div class="bg-white rounded-2xl p-6 border shadow-sm"><h3 class="font-black text-sm mb-4">CA Mensuel (année en cours)</h3><canvas id="chart-ca" height="200"></canvas></div>
-                <div class="bg-white rounded-2xl p-6 border shadow-sm"><h3 class="font-black text-sm mb-4">Top 10 Clients</h3><canvas id="chart-top" height="200"></canvas></div>
+        <div id="list-dashboard" class="dashboard-grid">
+            <div class="dashboard-grid">
+                <div class="chart-card"><h3>CA Mensuel (année en cours)</h3><canvas id="chart-ca" height="200"></canvas></div>
+                <div class="chart-card"><h3>Top 10 Clients</h3><canvas id="chart-top" height="200"></canvas></div>
             </div>
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div class="bg-white rounded-2xl p-6 border shadow-sm"><h3 class="font-black text-sm mb-4">Évolution CA</h3><canvas id="chart-evolution" height="180"></canvas></div>
-                <div class="bg-white rounded-2xl p-6 border shadow-sm"><h3 class="font-black text-sm mb-4">Règlements par mode</h3><canvas id="chart-reg" height="180"></canvas></div>
+            <div class="dashboard-grid">
+                <div class="chart-card"><h3>Évolution CA</h3><canvas id="chart-evolution" height="180"></canvas></div>
+                <div class="chart-card"><h3>Règlements par mode</h3><canvas id="chart-reg" height="180"></canvas></div>
             </div>
         </div>
 
@@ -164,13 +1109,13 @@
         <div id="list-clients" class="hidden">
             <div class="flex justify-between items-center mb-4 gap-2">
                 <div class="text-sm text-slate-400 font-bold" id="clients-pagination-info"></div>
-                <div class="flex gap-2">
-                    <button onclick="toggleFilters('clients')" class="bg-slate-100 text-slate-600 px-4 py-3 rounded-2xl font-bold text-sm hover:bg-indigo-50" id="filter-btn-clients"><i class="fas fa-sliders-h mr-2"></i>Filtres</button>
-                    <button onclick="exportCSV('clients')" class="bg-slate-100 text-slate-600 px-4 py-3 rounded-2xl font-bold text-sm"><i class="fas fa-file-csv mr-2"></i>Export</button>
-                    <button onclick="newClient()" class="bg-indigo-600 text-white px-6 py-3 rounded-2xl font-bold text-sm shadow-lg"><i class="fas fa-plus mr-2"></i>Nouveau Client</button>
+                <div class="page-toolbar">
+                    <button onclick="toggleFilters('clients')" class="btn btn-secondary" id="filter-btn-clients"><i class="fas fa-sliders-h mr-2"></i>Filtres</button>
+                    <button onclick="exportCSV('clients')" class="btn btn-secondary"><i class="fas fa-file-csv mr-2"></i>Export</button>
+                    <button onclick="newClient()" class="btn btn-primary"><i class="fas fa-plus mr-2"></i>Nouveau Client</button>
                 </div>
             </div>
-            <div id="filters-clients" class="hidden bg-white rounded-2xl p-4 border shadow-sm mb-4">
+            <div id="filters-clients" class="hidden table-card p-4 mb-4">
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
                     <select id="filter-clients-actif" onchange="applyFilters('clients')" class="p-2 bg-slate-50 border rounded-xl text-xs font-bold">
                         <option value="">Tous les clients</option>
@@ -203,28 +1148,29 @@
         <div id="list-articles" class="hidden">
             <div class="flex justify-between items-center mb-4 gap-2">
                 <div class="text-sm text-slate-400 font-bold" id="articles-pagination-info"></div>
-                <div class="flex gap-2">
-                    <button onclick="toggleFilters('articles')" class="bg-slate-100 text-slate-600 px-4 py-3 rounded-2xl font-bold text-sm hover:bg-indigo-50" id="filter-btn-articles"><i class="fas fa-sliders-h mr-2"></i>Filtres</button>
-                    <button onclick="exportCSV('articles')" class="bg-slate-100 text-slate-600 px-4 py-3 rounded-2xl font-bold text-sm"><i class="fas fa-file-csv mr-2"></i>Export</button>
-                    <button onclick="newArticle()" class="bg-indigo-600 text-white px-6 py-3 rounded-2xl font-bold text-sm shadow-lg"><i class="fas fa-plus mr-2"></i>Nouvel Article</button>
+                <div class="page-toolbar">
+                    <button onclick="toggleFilters('articles')" class="btn btn-secondary" id="filter-btn-articles"><i class="fas fa-sliders-h mr-2"></i>Filtres</button>
+                    <button onclick="exportCSV('articles')" class="btn btn-secondary"><i class="fas fa-file-csv mr-2"></i>Export</button>
+                    <button onclick="newArticle()" class="btn btn-primary"><i class="fas fa-plus mr-2"></i>Nouvel Article</button>
                 </div>
             </div>
-            <div id="filters-articles" class="hidden bg-white rounded-2xl p-4 border shadow-sm mb-4">
+            <div id="filters-articles" class="hidden table-card p-4 mb-4">
                 <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
                     <input type="text" id="filter-articles-famille" placeholder="Famille..." oninput="debounceFilters('articles')" class="p-2 bg-slate-50 border rounded-xl text-xs">
                     <button onclick="resetFilters('articles')" class="p-2 bg-red-50 text-red-500 rounded-xl text-xs font-bold"><i class="fas fa-undo mr-1"></i>Réinitialiser</button>
                 </div>
             </div>
-            <div class="bg-white rounded-2xl shadow-sm border overflow-hidden">
-                <table class="w-full text-left"><thead class="bg-slate-50 border-b text-slate-500 text-sm uppercase">
-                    <tr><th class="p-2 w-10"><input type="checkbox" onchange="batchToggleAll('articles', this.checked)" class="cursor-pointer"></th>
-                        <th class="p-4 cursor-pointer hover:text-indigo-600" onclick="sortTable('articles','art_cod')">Code <i class="sort-icon fas fa-sort text-[10px] ml-1"></i></th>
-                        <th class="p-4 cursor-pointer hover:text-indigo-600" onclick="sortTable('articles','art_lib')">Libellé <i class="sort-icon fas fa-sort text-[10px] ml-1"></i></th>
-                        <th class="p-4 cursor-pointer hover:text-indigo-600" onclick="sortTable('articles','art_faar')">Famille <i class="sort-icon fas fa-sort text-[10px] ml-1"></i></th>
-                        <th class="p-4 text-right cursor-pointer hover:text-indigo-600" onclick="sortTable('articles','art_prveT')">Prix Revient <i class="sort-icon fas fa-sort text-[10px] ml-1"></i></th>
-                        <th class="p-4 text-right cursor-pointer hover:text-indigo-600" onclick="sortTable('articles','art_pracT')">Prix Vente <i class="sort-icon fas fa-sort text-[10px] ml-1"></i></th>
-                        <th class="p-4 text-right cursor-pointer hover:text-indigo-600" onclick="sortTable('articles','art_stk')">Stock <i class="sort-icon fas fa-sort text-[10px] ml-1"></i></th><th class="p-4 text-center">Action</th></tr>
-                </thead><tbody id="articles-body" class="divide-y"></tbody></table>
+            <div class="table-card">
+                <table class="table"><thead><tr>
+                    <th class="checkbox"><input type="checkbox" onchange="batchToggleAll('articles', this.checked)" class="cursor-pointer"></th>
+                    <th class="sortable" onclick="sortTable('articles','art_cod')">Code <i class="sort-icon fas fa-sort text-[10px] ml-1"></i></th>
+                    <th class="sortable" onclick="sortTable('articles','art_lib')">Libellé <i class="sort-icon fas fa-sort text-[10px] ml-1"></i></th>
+                    <th class="sortable" onclick="sortTable('articles','art_faar')">Famille <i class="sort-icon fas fa-sort text-[10px] ml-1"></i></th>
+                    <th class="right sortable" onclick="sortTable('articles','art_prveT')">Prix Revient <i class="sort-icon fas fa-sort text-[10px] ml-1"></i></th>
+                    <th class="right sortable" onclick="sortTable('articles','art_pracT')">Prix Vente <i class="sort-icon fas fa-sort text-[10px] ml-1"></i></th>
+                    <th class="right sortable" onclick="sortTable('articles','art_stk')">Stock <i class="sort-icon fas fa-sort text-[10px] ml-1"></i></th>
+                    <th class="actions">Action</th>
+                </tr></thead><tbody id="articles-body"></tbody></table>
             </div>
             <div id="articles-pagination" class="flex justify-center gap-2 mt-6"></div>
         </div>
@@ -233,13 +1179,13 @@
         <div id="list-factures" class="hidden">
             <div class="flex justify-between items-center mb-4 gap-2">
                 <div class="text-sm text-slate-400 font-bold" id="factures-pagination-info"></div>
-                <div class="flex gap-2">
-                    <button onclick="toggleFilters('factures')" class="bg-slate-100 text-slate-600 px-4 py-3 rounded-2xl font-bold text-sm hover:bg-indigo-50" id="filter-btn-factures"><i class="fas fa-sliders-h mr-2"></i>Filtres</button>
-                    <button onclick="exportCSV('factures')" class="bg-slate-100 text-slate-600 px-4 py-3 rounded-2xl font-bold text-sm"><i class="fas fa-file-csv mr-2"></i>Export</button>
-                    <button onclick="openFacCreate()" class="bg-indigo-600 text-white px-6 py-3 rounded-2xl font-bold text-sm shadow-lg"><i class="fas fa-plus mr-2"></i>Nouvelle Facture</button>
+                <div class="page-toolbar">
+                    <button onclick="toggleFilters('factures')" class="btn btn-secondary" id="filter-btn-factures"><i class="fas fa-sliders-h mr-2"></i>Filtres</button>
+                    <button onclick="exportCSV('factures')" class="btn btn-secondary"><i class="fas fa-file-csv mr-2"></i>Export</button>
+                    <button onclick="openFacCreate()" class="btn btn-primary"><i class="fas fa-plus mr-2"></i>Nouvelle Facture</button>
                 </div>
             </div>
-            <div id="filters-factures" class="hidden bg-white rounded-2xl p-4 border shadow-sm mb-4">
+            <div id="filters-factures" class="hidden table-card p-4 mb-4">
                 <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
                     <select id="filter-factures-etat" onchange="applyFilters('factures')" class="p-2 bg-slate-50 border rounded-xl text-xs font-bold">
                         <option value="">Tous états</option>
@@ -256,15 +1202,15 @@
                     <button onclick="resetFilters('factures')" class="p-2 bg-red-50 text-red-500 rounded-xl text-xs font-bold self-end"><i class="fas fa-undo mr-1"></i>Réinitialiser</button>
                 </div>
             </div>
-            <div class="bg-white rounded-2xl shadow-sm border overflow-hidden">
-                <table class="w-full text-left"><thead class="bg-slate-50 border-b text-slate-500 text-sm uppercase">
-                    <tr><th class="p-2 w-10"><input type="checkbox" onchange="batchToggleAll('factures', this.checked)" class="cursor-pointer"></th>
-                        <th class="p-4 cursor-pointer hover:text-indigo-600" onclick="sortTable('factures','fac_num')">N° <i class="sort-icon fas fa-sort text-[10px] ml-1"></i></th>
-                        <th class="p-4 cursor-pointer hover:text-indigo-600" onclick="sortTable('factures','fac_dat')">Date <i class="sort-icon fas fa-sort text-[10px] ml-1"></i></th>
-                        <th class="p-4 cursor-pointer hover:text-indigo-600" onclick="sortTable('factures','cli_raso')">Client <i class="sort-icon fas fa-sort text-[10px] ml-1"></i></th>
-                        <th class="p-4 text-right cursor-pointer hover:text-indigo-600" onclick="sortTable('factures','fac_mt_ht')">HT <i class="sort-icon fas fa-sort text-[10px] ml-1"></i></th>
-                        <th class="p-4 text-right">TVA</th><th class="p-4 text-right">TTC</th><th class="p-4 text-right">Réglé</th><th class="p-4 text-right text-red-600">Reste</th><th class="p-4 text-center">Type</th><th class="p-4 text-center">État</th><th class="p-4 text-center">Action</th></tr>
-                </thead><tbody id="factures-body" class="divide-y"></tbody></table>
+            <div class="table-card">
+                <table class="table"><thead><tr>
+                    <th class="checkbox"><input type="checkbox" onchange="batchToggleAll('factures', this.checked)" class="cursor-pointer"></th>
+                    <th class="sortable" onclick="sortTable('factures','fac_num')">N° <i class="sort-icon fas fa-sort text-[10px] ml-1"></i></th>
+                    <th class="sortable" onclick="sortTable('factures','fac_dat')">Date <i class="sort-icon fas fa-sort text-[10px] ml-1"></i></th>
+                    <th class="sortable" onclick="sortTable('factures','cli_raso')">Client <i class="sort-icon fas fa-sort text-[10px] ml-1"></i></th>
+                    <th class="right sortable" onclick="sortTable('factures','fac_mt_ht')">HT <i class="sort-icon fas fa-sort text-[10px] ml-1"></i></th>
+                    <th class="right">TVA</th><th class="right">TTC</th><th class="right">Réglé</th><th class="right danger">Reste</th><th class="center">Type</th><th class="center">État</th><th class="actions">Action</th>
+                </tr></thead><tbody id="factures-body"></tbody></table>
             </div>
             <div id="factures-pagination" class="flex justify-center gap-2 mt-6"></div>
         </div>
@@ -273,13 +1219,13 @@
         <div id="list-reglements" class="hidden">
             <div class="flex justify-between items-center mb-4 gap-2">
                 <div class="text-sm text-slate-400 font-bold" id="reglements-pagination-info"></div>
-                <div class="flex gap-2">
-                    <button onclick="toggleFilters('reglements')" class="bg-slate-100 text-slate-600 px-4 py-3 rounded-2xl font-bold text-sm hover:bg-indigo-50" id="filter-btn-reglements"><i class="fas fa-sliders-h mr-2"></i>Filtres</button>
-                    <button onclick="exportCSV('reglements')" class="bg-slate-100 text-slate-600 px-4 py-3 rounded-2xl font-bold text-sm"><i class="fas fa-file-csv mr-2"></i>Export</button>
-                    <button onclick="newReglement()" class="bg-indigo-600 text-white px-6 py-3 rounded-2xl font-bold text-sm shadow-lg"><i class="fas fa-plus mr-2"></i>Nouveau Règlement</button>
+                <div class="page-toolbar">
+                    <button onclick="toggleFilters('reglements')" class="btn btn-secondary" id="filter-btn-reglements"><i class="fas fa-sliders-h mr-2"></i>Filtres</button>
+                    <button onclick="exportCSV('reglements')" class="btn btn-secondary"><i class="fas fa-file-csv mr-2"></i>Export</button>
+                    <button onclick="newReglement()" class="btn btn-primary"><i class="fas fa-plus mr-2"></i>Nouveau Règlement</button>
                 </div>
             </div>
-            <div id="filters-reglements" class="hidden bg-white rounded-2xl p-4 border shadow-sm mb-4">
+            <div id="filters-reglements" class="hidden table-card p-4 mb-4">
                 <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
                     <select id="filter-reglements-mode" onchange="applyFilters('reglements')" class="p-2 bg-slate-50 border rounded-xl text-xs font-bold">
                         <option value="">Tous modes</option>
@@ -292,16 +1238,16 @@
                     <button onclick="resetFilters('reglements')" class="p-2 bg-red-50 text-red-500 rounded-xl text-xs font-bold"><i class="fas fa-undo mr-1"></i>Réinitialiser</button>
                 </div>
             </div>
-            <div class="bg-white rounded-2xl shadow-sm border overflow-hidden">
-                <table class="w-full text-left"><thead class="bg-slate-50 border-b text-slate-500 text-sm uppercase">
-                    <tr><th class="p-2 w-10"><input type="checkbox" onchange="batchToggleAll('reglements', this.checked)" class="cursor-pointer"></th>
-                        <th class="p-4 cursor-pointer hover:text-indigo-600" onclick="sortTable('reglements','reg_id')">N° <i class="sort-icon fas fa-sort text-[10px] ml-1"></i></th>
-                        <th class="p-4 cursor-pointer hover:text-indigo-600" onclick="sortTable('reglements','reg_dat')">Date <i class="sort-icon fas fa-sort text-[10px] ml-1"></i></th>
-                        <th class="p-4 cursor-pointer hover:text-indigo-600" onclick="sortTable('reglements','cli_raso')">Client <i class="sort-icon fas fa-sort text-[10px] ml-1"></i></th>
-                        <th class="p-4 text-right cursor-pointer hover:text-indigo-600" onclick="sortTable('reglements','reg_mt')">Montant <i class="sort-icon fas fa-sort text-[10px] ml-1"></i></th>
-                        <th class="p-4 cursor-pointer hover:text-indigo-600" onclick="sortTable('reglements','reg_mode')">Mode <i class="sort-icon fas fa-sort text-[10px] ml-1"></i></th>
-                        <th class="p-4">Référence</th><th class="p-4 text-center">Action</th></tr>
-                </thead><tbody id="reglements-body" class="divide-y"></tbody></table>
+            <div class="table-card">
+                <table class="table"><thead><tr>
+                    <th class="checkbox"><input type="checkbox" onchange="batchToggleAll('reglements', this.checked)" class="cursor-pointer"></th>
+                    <th class="sortable" onclick="sortTable('reglements','reg_id')">N° <i class="sort-icon fas fa-sort text-[10px] ml-1"></i></th>
+                    <th class="sortable" onclick="sortTable('reglements','reg_dat')">Date <i class="sort-icon fas fa-sort text-[10px] ml-1"></i></th>
+                    <th class="sortable" onclick="sortTable('reglements','cli_raso')">Client <i class="sort-icon fas fa-sort text-[10px] ml-1"></i></th>
+                    <th class="right sortable" onclick="sortTable('reglements','reg_mt')">Montant <i class="sort-icon fas fa-sort text-[10px] ml-1"></i></th>
+                    <th class="sortable" onclick="sortTable('reglements','reg_mode')">Mode <i class="sort-icon fas fa-sort text-[10px] ml-1"></i></th>
+                    <th>Référence</th><th class="actions">Action</th>
+                </tr></thead><tbody id="reglements-body"></tbody></table>
             </div>
             <div id="reglements-pagination" class="flex justify-center gap-2 mt-6"></div>
         </div>
@@ -309,14 +1255,14 @@
         <!-- ABONNEMENTS -->
         <div id="list-abonnements" class="hidden space-y-6">
             <div class="flex justify-between items-center gap-2">
-                <div class="flex gap-2">
-                    <button onclick="toggleFilters('abonnements')" class="bg-slate-100 text-slate-600 px-4 py-3 rounded-2xl font-bold text-sm hover:bg-indigo-50" id="filter-btn-abonnements"><i class="fas fa-sliders-h mr-2"></i>Filtres</button>
+                <div class="page-toolbar">
+                    <button onclick="toggleFilters('abonnements')" class="btn btn-secondary" id="filter-btn-abonnements"><i class="fas fa-sliders-h mr-2"></i>Filtres</button>
                 </div>
-                <div class="flex gap-2">
-                    <button onclick="genererAbonnements()" class="bg-purple-600 text-white px-6 py-3 rounded-2xl font-bold text-sm shadow-lg"><i class="fas fa-magic mr-2"></i>Générer Factures</button>
+                <div class="page-toolbar">
+                    <button onclick="genererAbonnements()" class="btn btn-primary" style="background:var(--color-accent)"><i class="fas fa-magic mr-2"></i>Générer Factures</button>
                 </div>
             </div>
-            <div id="filters-abonnements" class="hidden bg-white rounded-2xl p-4 border shadow-sm">
+            <div id="filters-abonnements" class="hidden table-card p-4">
                 <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
                     <select id="filter-abonnements-cadence" onchange="applyFilters('abonnements')" class="p-2 bg-slate-50 border rounded-xl text-xs font-bold">
                         <option value="">Toutes cadences</option>
@@ -328,14 +1274,15 @@
                 </div>
             </div>
             <div class="flex justify-between items-center" id="abonnements-pagination-info"></div>
-            <div class="bg-white rounded-2xl shadow-sm border overflow-hidden">
-                <table class="w-full text-left"><thead class="bg-slate-50 border-b text-slate-500 text-sm uppercase">
-                    <tr><th class="p-2 w-10"><input type="checkbox" onchange="batchToggleAll('abonnements', this.checked)" class="cursor-pointer"></th>
-                        <th class="p-4 cursor-pointer hover:text-indigo-600" onclick="sortTable('abonnements','cli_raso')">Client <i class="sort-icon fas fa-sort text-[10px] ml-1"></i></th>
-                        <th class="p-4 text-center cursor-pointer hover:text-indigo-600" onclick="sortTable('abonnements','cli_abo_cadence')">Cadence <i class="sort-icon fas fa-sort text-[10px] ml-1"></i></th>
-                        <th class="p-4 text-right cursor-pointer hover:text-indigo-600" onclick="sortTable('abonnements','cli_abo_montant')">Montant <i class="sort-icon fas fa-sort text-[10px] ml-1"></i></th>
-                        <th class="p-4 text-center cursor-pointer hover:text-indigo-600" onclick="sortTable('abonnements','cli_abo_next')">Prochaine Échéance <i class="sort-icon fas fa-sort text-[10px] ml-1"></i></th><th class="p-4 text-center">Action</th></tr>
-                </thead><tbody id="abonnements-body" class="divide-y"></tbody></table>
+            <div class="table-card">
+                <table class="table"><thead><tr>
+                    <th class="checkbox"><input type="checkbox" onchange="batchToggleAll('abonnements', this.checked)" class="cursor-pointer"></th>
+                    <th class="sortable" onclick="sortTable('abonnements','cli_raso')">Client <i class="sort-icon fas fa-sort text-[10px] ml-1"></i></th>
+                    <th class="center sortable" onclick="sortTable('abonnements','cli_abo_cadence')">Cadence <i class="sort-icon fas fa-sort text-[10px] ml-1"></i></th>
+                    <th class="right sortable" onclick="sortTable('abonnements','cli_abo_montant')">Montant <i class="sort-icon fas fa-sort text-[10px] ml-1"></i></th>
+                    <th class="center sortable" onclick="sortTable('abonnements','cli_abo_next')">Prochaine Échéance <i class="sort-icon fas fa-sort text-[10px] ml-1"></i></th>
+                    <th class="actions">Action</th>
+                </tr></thead><tbody id="abonnements-body"></tbody></table>
             </div>
             <div id="abonnements-pagination" class="flex justify-center gap-2 mt-6"></div>
         </div>
@@ -344,13 +1291,13 @@
         <div id="list-devis" class="hidden">
             <div class="flex justify-between items-center mb-4 gap-2">
                 <div class="text-sm text-slate-400 font-bold" id="devis-pagination-info"></div>
-                <div class="flex gap-2">
-                    <button onclick="toggleFilters('devis')" class="bg-slate-100 text-slate-600 px-4 py-3 rounded-2xl font-bold text-sm hover:bg-indigo-50" id="filter-btn-devis"><i class="fas fa-sliders-h mr-2"></i>Filtres</button>
-                    <button onclick="exportCSV('devis')" class="bg-slate-100 text-slate-600 px-4 py-3 rounded-2xl font-bold text-sm"><i class="fas fa-file-csv mr-2"></i>Export</button>
-                    <button onclick="newDevis()" class="bg-indigo-600 text-white px-6 py-3 rounded-2xl font-bold text-sm shadow-lg"><i class="fas fa-plus mr-2"></i>Nouveau Devis</button>
+                <div class="page-toolbar">
+                    <button onclick="toggleFilters('devis')" class="btn btn-secondary" id="filter-btn-devis"><i class="fas fa-sliders-h mr-2"></i>Filtres</button>
+                    <button onclick="exportCSV('devis')" class="btn btn-secondary"><i class="fas fa-file-csv mr-2"></i>Export</button>
+                    <button onclick="newDevis()" class="btn btn-primary"><i class="fas fa-plus mr-2"></i>Nouveau Devis</button>
                 </div>
             </div>
-            <div id="filters-devis" class="hidden bg-white rounded-2xl p-4 border shadow-sm mb-4">
+            <div id="filters-devis" class="hidden table-card p-4 mb-4">
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
                     <select id="filter-devis-etat" onchange="applyFilters('devis')" class="p-2 bg-slate-50 border rounded-xl text-xs font-bold">
                         <option value="">Tous états</option>
@@ -363,34 +1310,34 @@
                     <button onclick="resetFilters('devis')" class="p-2 bg-red-50 text-red-500 rounded-xl text-xs font-bold self-end"><i class="fas fa-undo mr-1"></i>Réinitialiser</button>
                 </div>
             </div>
-            <div class="bg-white rounded-2xl shadow-sm border overflow-hidden">
-                <table class="w-full text-left"><thead class="bg-slate-50 border-b text-slate-500 text-sm uppercase">
-                    <tr><th class="p-2 w-10"><input type="checkbox" onchange="batchToggleAll('devis', this.checked)" class="cursor-pointer"></th>
-                        <th class="p-4 cursor-pointer hover:text-indigo-600" onclick="sortTable('devis','dev_num')">N° <i class="sort-icon fas fa-sort text-[10px] ml-1"></i></th>
-                        <th class="p-4 cursor-pointer hover:text-indigo-600" onclick="sortTable('devis','dev_dat')">Date <i class="sort-icon fas fa-sort text-[10px] ml-1"></i></th>
-                        <th class="p-4 cursor-pointer hover:text-indigo-600" onclick="sortTable('devis','cli_raso')">Client <i class="sort-icon fas fa-sort text-[10px] ml-1"></i></th>
-                        <th class="p-4 text-right cursor-pointer hover:text-indigo-600" onclick="sortTable('devis','dev_mt_ht')">Montant <i class="sort-icon fas fa-sort text-[10px] ml-1"></i></th>
-                        <th class="p-4 text-center">État</th><th class="p-4 text-center">Action</th></tr>
-                </thead><tbody id="devis-body" class="divide-y"></tbody></table>
+            <div class="table-card">
+                <table class="table"><thead><tr>
+                    <th class="checkbox"><input type="checkbox" onchange="batchToggleAll('devis', this.checked)" class="cursor-pointer"></th>
+                    <th class="sortable" onclick="sortTable('devis','dev_num')">N° <i class="sort-icon fas fa-sort text-[10px] ml-1"></i></th>
+                    <th class="sortable" onclick="sortTable('devis','dev_dat')">Date <i class="sort-icon fas fa-sort text-[10px] ml-1"></i></th>
+                    <th class="sortable" onclick="sortTable('devis','cli_raso')">Client <i class="sort-icon fas fa-sort text-[10px] ml-1"></i></th>
+                    <th class="right sortable" onclick="sortTable('devis','dev_mt_ht')">Montant <i class="sort-icon fas fa-sort text-[10px] ml-1"></i></th>
+                    <th class="center">État</th><th class="actions">Action</th>
+                </tr></thead><tbody id="devis-body"></tbody></table>
             </div>
             <div id="devis-pagination" class="flex justify-center gap-2 mt-6"></div>
         </div>
 
         <!-- RAPPORTS -->
         <div id="list-rapports" class="hidden space-y-6">
-            <div class="flex flex-wrap gap-2 mb-4">
-                <button onclick="switchRapport('ca-client')" class="bg-white border px-5 py-3 rounded-2xl font-bold text-sm hover:bg-indigo-50 data-[active]:bg-indigo-600 data-[active]:text-white data-[active]:shadow-lg" id="rbtn-ca-client"><i class="fas fa-chart-simple mr-2"></i>CA par Client</button>
-                <button onclick="switchRapport('ca-article')" class="bg-white border px-5 py-3 rounded-2xl font-bold text-sm hover:bg-indigo-50 data-[active]:bg-indigo-600 data-[active]:text-white data-[active]:shadow-lg" id="rbtn-ca-article"><i class="fas fa-box mr-2"></i>CA par Article</button>
-                <button onclick="switchRapport('encaissements')" class="bg-white border px-5 py-3 rounded-2xl font-bold text-sm hover:bg-indigo-50 data-[active]:bg-indigo-600 data-[active]:text-white data-[active]:shadow-lg" id="rbtn-encaissements"><i class="fas fa-hand-holding-usd mr-2"></i>Encaissements</button>
-                <button onclick="switchRapport('restant')" class="bg-white border px-5 py-3 rounded-2xl font-bold text-sm hover:bg-indigo-50 data-[active]:bg-indigo-600 data-[active]:text-white data-[active]:shadow-lg" id="rbtn-restant"><i class="fas fa-clock mr-2"></i>Restant à Payer</button>
-                <button onclick="switchRapport('impayes')" class="bg-white border px-5 py-3 rounded-2xl font-bold text-sm hover:bg-indigo-50 data-[active]:bg-indigo-600 data-[active]:text-white data-[active]:shadow-lg" id="rbtn-impayes"><i class="fas fa-exclamation-triangle mr-2"></i>Impayés</button>
-                <button onclick="switchRapport('tva')" class="bg-white border px-5 py-3 rounded-2xl font-bold text-sm hover:bg-indigo-50 data-[active]:bg-indigo-600 data-[active]:text-white data-[active]:shadow-lg" id="rbtn-tva"><i class="fas fa-calculator mr-2"></i>TVA</button>
-                <button onclick="switchRapport('ca-mensuel')" class="bg-white border px-5 py-3 rounded-2xl font-bold text-sm hover:bg-indigo-50 data-[active]:bg-indigo-600 data-[active]:text-white data-[active]:shadow-lg" id="rbtn-ca-mensuel"><i class="fas fa-line-chart mr-2"></i>CA Mensuel</button>
+            <div class="page-toolbar">
+                <button onclick="switchRapport('ca-client')" class="btn btn-outline" id="rbtn-ca-client"><i class="fas fa-chart-simple mr-2"></i>CA par Client</button>
+                <button onclick="switchRapport('ca-article')" class="btn btn-outline" id="rbtn-ca-article"><i class="fas fa-box mr-2"></i>CA par Article</button>
+                <button onclick="switchRapport('encaissements')" class="btn btn-outline" id="rbtn-encaissements"><i class="fas fa-hand-holding-usd mr-2"></i>Encaissements</button>
+                <button onclick="switchRapport('restant')" class="btn btn-outline" id="rbtn-restant"><i class="fas fa-clock mr-2"></i>Restant à Payer</button>
+                <button onclick="switchRapport('impayes')" class="btn btn-outline" id="rbtn-impayes"><i class="fas fa-exclamation-triangle mr-2"></i>Impayés</button>
+                <button onclick="switchRapport('tva')" class="btn btn-outline" id="rbtn-tva"><i class="fas fa-calculator mr-2"></i>TVA</button>
+                <button onclick="switchRapport('ca-mensuel')" class="btn btn-outline" id="rbtn-ca-mensuel"><i class="fas fa-line-chart mr-2"></i>CA Mensuel</button>
             </div>
-            <div id="rapport-filters" class="bg-white rounded-2xl shadow-sm border overflow-hidden p-4 hidden">
+            <div id="rapport-filters" class="table-card p-4 hidden">
                 <div class="flex flex-wrap items-end gap-3" id="rapport-filter-controls"></div>
             </div>
-            <div id="rapport-container" class="bg-white rounded-2xl shadow-sm border overflow-hidden p-6">
+            <div id="rapport-container" class="table-card p-6">
                 <p class="text-slate-400 text-sm font-bold">Sélectionnez un rapport ci-dessus.</p>
             </div>
         </div>
@@ -409,10 +1356,10 @@
         </div>
 
         <!-- FORMS -->
-        <div id="form-container" class="hidden max-w-4xl mx-auto bg-white rounded-[2.5rem] shadow-xl border overflow-hidden">
-            <div class="p-8 border-b bg-slate-50/50 flex justify-between items-center">
-                <h2 class="text-xl font-black" id="form-title">Fiche Client</h2>
-                <button onclick="closeForm()" class="text-slate-400 hover:text-slate-600"><i class="fas fa-times text-xl"></i></button>
+        <div id="form-container" class="hidden max-w-4xl mx-auto table-card">
+            <div class="table-header">
+                <h2 class="table-title" id="form-title">Fiche Client</h2>
+                <button onclick="closeForm()" class="modal-close"><i class="fas fa-times"></i></button>
             </div>
             <form id="client-form" class="p-8 space-y-8 hidden">
                 <div>
@@ -472,14 +1419,15 @@
         </div>
 
         <!-- CLIENT DETAIL MODAL (TABS) -->
-        <div id="modal-client-detail" class="fixed inset-0 modal-overlay hidden flex items-center justify-center z-[100] p-4">
-            <div class="bg-white rounded-[2rem] w-full max-w-4xl p-8 shadow-2xl max-h-[90vh] overflow-y-auto">
-                <div class="flex justify-between items-start mb-6">
-                    <div><h3 class="text-xl font-black" id="client-detail-title">Fiche Client</h3><p class="text-indigo-600 text-sm font-bold" id="client-detail-sub"></p></div>
-                    <button onclick="closeClientDetail()" class="text-slate-400"><i class="fas fa-times text-xl"></i></button>
+        <div id="modal-client-detail" class="modal modal-lg hidden">
+            <div class="modal-dialog">
+                <div class="modal-header">
+                    <div><h3 id="client-detail-title">Fiche Client</h3><p id="client-detail-sub"></p></div>
+                    <button onclick="closeClientDetail()" class="modal-close"><i class="fas fa-times"></i></button>
                 </div>
-                <div class="border-b mb-6">
-                    <div class="flex gap-6">
+                <div class="modal-body">
+                    <div class="border-b mb-6">
+                        <div class="flex gap-6">
                         <button onclick="switchClientTab('info')" id="ctab-info" class="pb-3 text-sm font-black text-indigo-600 border-b-2 border-indigo-600">Infos</button>
                         <button onclick="switchClientTab('factures')" id="ctab-factures" class="pb-3 text-sm font-bold text-slate-400 hover:text-slate-700">Factures</button>
                         <button onclick="switchClientTab('reglements')" id="ctab-reglements" class="pb-3 text-sm font-bold text-slate-400 hover:text-slate-700">Règlements</button>
@@ -552,70 +1500,71 @@
             </div>
         </div>
 
-        <div id="form-article" class="hidden max-w-2xl mx-auto bg-white rounded-[2.5rem] shadow-xl border overflow-hidden">
-            <div class="p-8 border-b bg-slate-50/50 flex justify-between items-center">
-                <h2 class="text-xl font-black" id="form-article-title">Nouvel Article</h2>
-                <button onclick="closeForm()" class="text-slate-400"><i class="fas fa-times text-xl"></i></button>
+        <div id="form-article" class="hidden max-w-4xl mx-auto table-card">
+            <div class="table-header">
+                <h2 class="table-title" id="form-article-title">Nouvel Article</h2>
+                <button onclick="closeForm()" class="modal-close"><i class="fas fa-times"></i></button>
             </div>
             <form id="article-form" class="p-8 space-y-6">
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div class="space-y-1"><label for="art_cod" class="text-xs font-bold text-slate-500">Code</label><input type="text" id="art_cod" required class="w-full p-3 bg-slate-50 border rounded-xl font-bold"></div>
-                    <div class="md:col-span-2 space-y-1"><label for="art_lib" class="text-xs font-bold text-slate-500">Libellé</label><input type="text" id="art_lib" required class="w-full p-3 bg-slate-50 border rounded-xl font-bold"></div>
+                    <div class="form-group"><label for="art_cod" class="form-label">Code</label><input type="text" id="art_cod" required class="input"></div>
+                    <div class="md:col-span-2 form-group"><label for="art_lib" class="form-label">Libellé</label><input type="text" id="art_lib" required class="input"></div>
                 </div>
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div class="space-y-1"><label class="text-xs font-bold text-slate-500">Famille</label><input type="text" id="art_faar" class="w-full p-3 bg-slate-50 border rounded-xl text-sm"></div>
-                    <div class="space-y-1"><label class="text-xs font-bold text-slate-500">Prix Revient</label><input type="number" id="art_prveT" step="0.01" class="w-full p-3 bg-slate-50 border rounded-xl text-sm"></div>
-                    <div class="space-y-1"><label class="text-xs font-bold text-slate-500">Prix Vente</label><input type="number" id="art_pracT" step="0.01" class="w-full p-3 bg-slate-50 border rounded-xl text-sm"></div>
-                    <div class="space-y-1"><label class="text-xs font-bold text-slate-500">Stock</label><input type="number" id="art_stk" step="0.01" class="w-full p-3 bg-slate-50 border rounded-xl text-sm"></div>
+                    <div class="form-group"><label class="form-label">Famille</label><input type="text" id="art_faar" class="input input-sm"></div>
+                    <div class="form-group"><label class="form-label">Prix Revient</label><input type="number" id="art_prveT" step="0.01" class="input input-sm"></div>
+                    <div class="form-group"><label class="form-label">Prix Vente</label><input type="number" id="art_pracT" step="0.01" class="input input-sm"></div>
+                    <div class="form-group"><label class="form-label">Stock</label><input type="number" id="art_stk" step="0.01" class="input input-sm"></div>
                 </div>
-                <div class="pt-6 border-t flex gap-4">
-                    <button type="submit" class="bg-indigo-600 text-white px-8 py-4 rounded-2xl font-black">Enregistrer</button>
-                    <button type="button" onclick="closeForm()" class="bg-slate-100 text-slate-500 px-8 py-4 rounded-2xl font-bold">Annuler</button>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Enregistrer</button>
+                    <button type="button" onclick="closeForm()" class="btn btn-secondary">Annuler</button>
                 </div>
             </form>
         </div>
 
-        <div id="form-reglement" class="hidden max-w-2xl mx-auto bg-white rounded-[2.5rem] shadow-xl border overflow-hidden">
-            <div class="p-8 border-b bg-slate-50/50 flex justify-between items-center">
-                <h2 class="text-xl font-black" id="form-reglement-title">Nouveau Règlement</h2>
-                <button onclick="closeForm()" class="text-slate-400"><i class="fas fa-times text-xl"></i></button>
+        <div id="form-reglement" class="hidden max-w-2xl mx-auto table-card">
+            <div class="table-header">
+                <h2 class="table-title" id="form-reglement-title">Nouveau Règlement</h2>
+                <button onclick="closeForm()" class="modal-close"><i class="fas fa-times"></i></button>
             </div>
             <form id="reglement-form" class="p-8 space-y-6">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div><label for="reg_cli_cod" class="text-xs font-bold text-slate-500">Client</label><select id="reg_cli_cod" required class="w-full p-3 bg-slate-50 border rounded-xl text-sm font-bold"></select></div>
-                    <div><label for="reg_dat" class="text-xs font-bold text-slate-500">Date</label><input type="date" id="reg_dat" class="w-full p-3 bg-slate-50 border rounded-xl text-sm"></div>
+                    <div class="form-group"><label for="reg_cli_cod" class="form-label">Client</label><select id="reg_cli_cod" required class="select"></select></div>
+                    <div class="form-group"><label for="reg_dat" class="form-label">Date</label><input type="date" id="reg_dat" class="input"></div>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div><label for="reg_mt" class="text-xs font-bold text-slate-500">Montant</label><input type="number" id="reg_mt" step="0.01" required class="w-full p-3 bg-slate-50 border rounded-xl text-sm font-bold"></div>
-                    <div><label for="reg_mode" class="text-xs font-bold text-slate-500">Mode</label><select id="reg_mode" class="w-full p-3 bg-slate-50 border rounded-xl text-sm">
+                    <div class="form-group"><label for="reg_mt" class="form-label">Montant</label><input type="number" id="reg_mt" step="0.01" required class="input"></div>
+                    <div class="form-group"><label for="reg_mode" class="form-label">Mode</label><select id="reg_mode" class="select">
                         <option value="VIREMENT">Virement</option><option value="CHEQUE">Chèque</option><option value="ESPECES">Espèces</option>
                     </select></div>
-                    <div><label class="text-xs font-bold text-slate-500">Référence</label><input type="text" id="reg_ref" placeholder="N° chèque" class="w-full p-3 bg-slate-50 border rounded-xl text-sm"></div>
+                    <div class="form-group"><label class="form-label">Référence</label><input type="text" id="reg_ref" placeholder="N° chèque" class="input"></div>
                 </div>
                 <div class="border-t pt-4">
                     <p class="text-xs font-bold text-slate-500 mb-2">Factures concernées <span class="text-slate-400 font-normal">(optionnel)</span></p>
-                    <select id="reg_fac_num" class="w-full p-3 bg-slate-50 border rounded-xl text-sm font-bold">
+                    <select id="reg_fac_num" class="select">
                         <option value="">-- Aucune facture liée --</option>
                     </select>
-                    <p class="text-[10px] text-slate-400 mt-1">Sélectionnez une facture à solder avec ce règlement.</p>
+                    <p class="form-hint">Sélectionnez une facture à solder avec ce règlement.</p>
                 </div>
-                <div class="pt-6 border-t flex gap-4">
-                    <button type="submit" class="bg-indigo-600 text-white px-8 py-4 rounded-2xl font-black">Enregistrer</button>
-                    <button type="button" onclick="closeForm()" class="bg-slate-100 text-slate-500 px-8 py-4 rounded-2xl font-bold">Annuler</button>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Enregistrer</button>
+                    <button type="button" onclick="closeForm()" class="btn btn-secondary">Annuler</button>
                 </div>
             </form>
         </div>
 
         <!-- ABO MODAL -->
-        <div id="modal-abo" class="fixed inset-0 modal-overlay hidden flex items-center justify-center z-[100] p-4">
-            <div class="bg-white rounded-[2rem] w-full max-w-lg p-8 shadow-2xl">
-                <div class="flex justify-between items-start mb-6">
-                    <div><h3 class="text-xl font-black">Paramètres Abonnement</h3><p id="abo-client-name" class="text-indigo-600 text-sm font-bold"></p></div>
-                    <button onclick="closeModal('modal-abo')" class="text-slate-400"><i class="fas fa-times text-xl"></i></button>
+        <div id="modal-abo" class="modal hidden">
+            <div class="modal-dialog">
+                <div class="modal-header">
+                    <div><h3>Paramètres Abonnement</h3><p id="abo-client-name"></p></div>
+                    <button onclick="closeModal('modal-abo')" class="modal-close"><i class="fas fa-times"></i></button>
                 </div>
-                <input type="hidden" id="abo_cli_cod">
-                <div class="space-y-4">
-                    <div><label for="abo_cadence" class="text-xs font-bold text-slate-500">Cadence</label>
+                <div class="modal-body">
+                    <input type="hidden" id="abo_cli_cod">
+                    <div class="space-y-4">
+                        <div class="form-group"><label for="abo_cadence" class="form-label">Cadence</label>
                         <select id="abo_cadence" class="w-full p-3 bg-slate-50 border rounded-xl text-sm font-bold">
                             <option value="AUCUNE">Aucun</option><option value="MENSUEL">Mensuel</option><option value="TRIMESTRIEL">Trimestriel</option><option value="ANNUEL">Annuel</option>
                         </select></div>
@@ -624,26 +1573,27 @@
                     <div><label class="text-xs font-bold text-slate-500">Prochaine échéance</label>
                         <input type="date" id="abo_next" class="w-full p-3 bg-slate-50 border rounded-xl text-sm"></div>
                 </div>
-                <div class="pt-6 flex gap-4">
-                    <button onclick="saveAbonnement()" class="bg-indigo-600 text-white px-8 py-4 rounded-2xl font-black shadow-xl">Enregistrer</button>
-                    <button onclick="closeModal('modal-abo')" class="bg-slate-100 text-slate-500 px-8 py-4 rounded-2xl font-bold">Annuler</button>
+                <div class="modal-footer">
+                    <button onclick="saveAbonnement()" class="btn btn-primary">Enregistrer</button>
+                    <button onclick="closeModal('modal-abo')" class="btn btn-secondary">Annuler</button>
                 </div>
             </div>
         </div>
 
         <!-- FACTURE MODAL -->
-        <div id="modal-fac" class="fixed inset-0 modal-overlay hidden flex items-center justify-center z-[100] p-4">
-            <div class="bg-white rounded-[2rem] w-full max-w-4xl p-8 shadow-2xl max-h-[90vh] overflow-y-auto">
-                <div class="flex justify-between items-start mb-6">
-                    <div><h3 class="text-xl font-black" id="fac-modal-title">Nouvelle Facture</h3><p class="text-indigo-600 text-sm font-bold" id="fac-modal-sub"></p></div>
-                    <button onclick="closeFac()" class="text-slate-400"><i class="fas fa-times text-xl"></i></button>
+        <div id="modal-fac" class="modal modal-lg hidden">
+            <div class="modal-dialog">
+                <div class="modal-header">
+                    <div><h3 id="fac-modal-title">Nouvelle Facture</h3><p id="fac-modal-sub"></p></div>
+                    <button onclick="closeFac()" class="modal-close"><i class="fas fa-times"></i></button>
                 </div>
-                <input type="hidden" id="fac_num_edit">
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                    <div class="md:col-span-2"><label for="fac_cli_cod" class="text-xs font-bold text-slate-500">Client</label><select id="fac_cli_cod" class="w-full p-3 bg-slate-50 border rounded-xl text-sm font-bold"></select></div>
-                    <div><label for="fac_dat" class="text-xs font-bold text-slate-500">Date</label><input type="date" id="fac_dat" class="w-full p-3 bg-slate-50 border rounded-xl text-sm"></div>
-                    <div><label for="fac_echeance" class="text-xs font-bold text-slate-500">Échéance</label>
-                        <select id="fac_echeance" class="w-full p-3 bg-slate-50 border rounded-xl text-sm font-bold">
+                <div class="modal-body">
+                    <input type="hidden" id="fac_num_edit">
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                        <div class="md:col-span-2"><label for="fac_cli_cod" class="form-label">Client</label><select id="fac_cli_cod" class="select"></select></div>
+                        <div><label for="fac_dat" class="form-label">Date</label><input type="date" id="fac_dat" class="input"></div>
+                        <div><label for="fac_echeance" class="form-label">Échéance</label>
+                            <select id="fac_echeance" class="select">
                             <option value="Comptant">Comptant</option>
                             <option value="30 jours" selected>30 jours</option>
                             <option value="60 jours">60 jours</option>
@@ -674,20 +1624,21 @@
                         <div class="text-xl font-black text-indigo-600">Total TTC: <span id="fac-total-ttc">0.00</span> DH</div>
                         <div id="fac-reste-display" class="hidden text-sm font-bold text-red-600 mt-1"><span>Reste à payer: <span id="fac-reste-value">0.00</span> DH</span></div>
                     </div>
-                    <div class="flex gap-3">
-                        <button onclick="submitFacture()" class="bg-indigo-600 text-white px-8 py-3 rounded-2xl font-black">Enregistrer</button>
-                        <button onclick="submitFacture(true)" class="bg-emerald-600 text-white px-8 py-3 rounded-2xl font-bold"><i class="fas fa-check-circle mr-1"></i>Valider</button>
-                        <button onclick="closeFac()" class="bg-slate-100 text-slate-500 px-6 py-3 rounded-2xl font-bold">Annuler</button>
+                    <div class="modal-footer justify-start">
+                        <button onclick="submitFacture()" class="btn btn-primary">Enregistrer</button>
+                        <button onclick="submitFacture(true)" class="btn btn-success"><i class="fas fa-check-circle mr-1"></i>Valider</button>
+                        <button onclick="closeFac()" class="btn btn-secondary">Annuler</button>
                     </div>
                 </div>
-                <div class="mt-4 pt-4 border-t">
-                    <label for="fac_notes" class="text-xs font-bold text-slate-500">Notes / Conditions</label>
-                    <textarea id="fac_notes" rows="2" class="w-full p-3 bg-slate-50 border rounded-xl text-sm mt-1" placeholder="Conditions de paiement, remarques..."></textarea>
+                <div class="border-t px-8 py-4">
+                    <label for="fac_notes" class="form-label">Notes / Conditions</label>
+                    <textarea id="fac_notes" rows="2" class="textarea mt-1" placeholder="Conditions de paiement, remarques..."></textarea>
                 </div>
-                <div class="mt-4 pt-4 border-t">
-                    <div class="flex items-center gap-3 mb-3">
-                        <input type="checkbox" id="fac-reg-toggle" onchange="toggleFacReg()" class="w-4 h-4 accent-indigo-600 cursor-pointer">
-                        <label for="fac-reg-toggle" class="text-xs font-black uppercase text-slate-500 cursor-pointer select-none">Enregistrer un règlement</label>
+                <div class="border-t px-8 py-4">
+                    <div class="toggle mb-3">
+                        <input type="checkbox" id="fac-reg-toggle" onchange="toggleFacReg()">
+                        <span class="track"></span>
+                        <span class="text-xs font-black uppercase text-slate-500">Enregistrer un règlement</span>
                     </div>
                     <div id="fac-reg-fields" class="hidden grid grid-cols-1 md:grid-cols-4 gap-3">
                         <div><label class="text-xs font-bold text-slate-500">Mode</label>
@@ -705,18 +1656,19 @@
                 </div>
             </div>
         </div>
-        <div id="modal-devis" class="fixed inset-0 modal-overlay hidden flex items-center justify-center z-[100] p-4">
-            <div class="bg-white rounded-[2rem] w-full max-w-4xl p-8 shadow-2xl max-h-[90vh] overflow-y-auto">
-                <div class="flex justify-between items-start mb-6">
-                    <div><h3 class="text-xl font-black" id="dev-modal-title">Nouveau Devis</h3><p class="text-indigo-600 text-sm font-bold" id="dev-modal-sub"></p></div>
-                    <button onclick="closeDev()" class="text-slate-400"><i class="fas fa-times text-xl"></i></button>
+        <div id="modal-devis" class="modal modal-lg hidden">
+            <div class="modal-dialog">
+                <div class="modal-header">
+                    <div><h3 id="dev-modal-title">Nouveau Devis</h3><p id="dev-modal-sub"></p></div>
+                    <button onclick="closeDev()" class="modal-close"><i class="fas fa-times"></i></button>
                 </div>
-                <input type="hidden" id="dev_num_edit">
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                    <div class="md:col-span-2"><label for="dev_cli_cod" class="text-xs font-bold text-slate-500">Client</label><select id="dev_cli_cod" class="w-full p-3 bg-slate-50 border rounded-xl text-sm font-bold"></select></div>
-                    <div><label for="dev_dat" class="text-xs font-bold text-slate-500">Date</label><input type="date" id="dev_dat" class="w-full p-3 bg-slate-50 border rounded-xl text-sm"></div>
-                    <div><label for="dev_echeance" class="text-xs font-bold text-slate-500">Échéance</label>
-                        <select id="dev_echeance" class="w-full p-3 bg-slate-50 border rounded-xl text-sm font-bold">
+                <div class="modal-body">
+                    <input type="hidden" id="dev_num_edit">
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                        <div class="md:col-span-2"><label for="dev_cli_cod" class="form-label">Client</label><select id="dev_cli_cod" class="select"></select></div>
+                        <div><label for="dev_dat" class="form-label">Date</label><input type="date" id="dev_dat" class="input"></div>
+                        <div><label for="dev_echeance" class="form-label">Échéance</label>
+                            <select id="dev_echeance" class="select">
                             <option value="Comptant">Comptant</option>
                             <option value="30 jours" selected>30 jours</option>
                             <option value="60 jours">60 jours</option>
@@ -746,54 +1698,55 @@
                         </div>
                         <div class="text-xl font-black text-indigo-600">Total TTC: <span id="dev-total-ttc">0.00</span> DH</div>
                     </div>
-                    <div class="flex gap-3">
-                        <button onclick="submitDevis()" class="bg-indigo-600 text-white px-8 py-3 rounded-2xl font-black">Enregistrer</button>
-                        <button onclick="submitDevis(true)" class="bg-emerald-600 text-white px-8 py-3 rounded-2xl font-bold"><i class="fas fa-check-circle mr-1"></i>Valider</button>
-                        <button onclick="closeDev()" class="bg-slate-100 text-slate-500 px-6 py-3 rounded-2xl font-bold">Annuler</button>
+                    <div class="modal-footer justify-start">
+                        <button onclick="submitDevis()" class="btn btn-primary">Enregistrer</button>
+                        <button onclick="submitDevis(true)" class="btn btn-success"><i class="fas fa-check-circle mr-1"></i>Valider</button>
+                        <button onclick="closeDev()" class="btn btn-secondary">Annuler</button>
                     </div>
                 </div>
-                <div class="mt-4 pt-4 border-t">
-                    <label for="dev_notes" class="text-xs font-bold text-slate-500">Notes / Conditions</label>
-                    <textarea id="dev_notes" rows="2" class="w-full p-3 bg-slate-50 border rounded-xl text-sm mt-1" placeholder="Conditions du devis, validité, remarques..."></textarea>
+                <div class="border-t px-8 py-4">
+                    <label for="dev_notes" class="form-label">Notes / Conditions</label>
+                    <textarea id="dev_notes" rows="2" class="textarea mt-1" placeholder="Conditions du devis, validité, remarques..."></textarea>
                 </div>
             </div>
         </div>
 
         <!-- IMPRESSION MODAL -->
-        <div id="modal-print" class="fixed inset-0 modal-overlay hidden z-[100]">
-            <div class="bg-white w-full h-full overflow-y-auto p-8 lg:p-16 no-print">
+        <div id="modal-print" class="modal modal-full no-print hidden">
+            <div class="modal-dialog bg-white p-8 lg:p-16">
                 <div class="max-w-4xl mx-auto">
-                    <button onclick="closeModal('modal-print')" class="mb-4 bg-slate-100 px-6 py-3 rounded-2xl font-bold text-sm"><i class="fas fa-arrow-left mr-2"></i>Retour</button>
-                    <button onclick="window.print()" class="mb-4 bg-indigo-600 text-white px-6 py-3 rounded-2xl font-bold text-sm ml-2"><i class="fas fa-print mr-2"></i>Imprimer</button>
-                    <div id="print-content" class="bg-white p-8 rounded-2xl shadow-sm border"></div>
+                    <button onclick="closeModal('modal-print')" class="btn btn-secondary mb-4"><i class="fas fa-arrow-left mr-2"></i>Retour</button>
+                    <button onclick="window.print()" class="btn btn-primary mb-4 ml-2"><i class="fas fa-print mr-2"></i>Imprimer</button>
+                    <div id="print-content" class="table-card p-8"></div>
                 </div>
             </div>
         </div>
 
         <!-- CUSTOM CONFIRM MODAL -->
-        <div id="modal-confirm" class="fixed inset-0 modal-overlay hidden flex items-center justify-center z-[300] p-4">
-            <div class="bg-white rounded-[2rem] w-full max-w-sm p-8 shadow-2xl text-center">
-                <div class="w-14 h-14 bg-red-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                    <i class="fas fa-exclamation-triangle text-red-500 text-xl"></i>
-                </div>
+        <div id="modal-confirm" class="modal modal-confirm hidden">
+            <div class="modal-dialog">
+                <div class="modal-icon"><i class="fas fa-exclamation-triangle"></i></div>
                 <h3 class="text-lg font-black mb-2" id="confirm-title">Confirmer</h3>
                 <p class="text-slate-500 text-sm mb-6" id="confirm-msg">Êtes-vous sûr ?</p>
                 <div class="flex gap-3 justify-center">
-                    <button id="confirm-yes" class="bg-red-600 text-white px-8 py-3 rounded-2xl font-bold text-sm shadow-lg">Confirmer</button>
-                    <button onclick="closeModal('modal-confirm')" class="bg-slate-100 text-slate-500 px-8 py-3 rounded-2xl font-bold text-sm">Annuler</button>
-                </div>
+            <div class="modal-body">
+                <p class="text-slate-500 text-sm mb-6" id="confirm-msg">Êtes-vous sûr ?</p>
+            </div>
+            <div class="modal-footer">
+                <button id="confirm-yes" class="btn btn-danger">Confirmer</button>
+                <button onclick="closeModal('modal-confirm')" class="btn btn-secondary">Annuler</button>
             </div>
         </div>
     </main>
 </div>
 </div>
 
-<div id="loading-bar" class="hidden fixed top-0 left-0 w-full h-1 bg-indigo-500/20 z-[400]">
-    <div class="h-full bg-indigo-600 animate-pulse" style="width:30%"></div>
+<div id="loading-bar" class="hidden fixed top-0 left-0 w-full h-1 z-[400]" style="background:var(--color-primary-alpha-20)">
+    <div class="h-full animate-pulse" style="width:30%;background:var(--color-primary)"></div>
 </div>
 
-<div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-8 py-4 rounded-2xl shadow-2xl flex items-center gap-4 opacity-0 pointer-events-none transition-all duration-300 z-[200]">
-    <i class="fas fa-check-circle text-emerald-400"></i><span id="toast-msg" class="font-bold text-sm">Fait</span>
+<div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 text-white px-8 py-4 rounded-2xl shadow-2xl flex items-center gap-4 opacity-0 pointer-events-none transition-all duration-300 z-[200]" style="background:#1e293b">
+    <i class="fas fa-check-circle" style="color:var(--color-success)"></i><span id="toast-msg" class="font-bold text-sm">Fait</span>
 </div>
 
 <script>
@@ -817,12 +1770,16 @@ document.getElementById('login-form').onsubmit = async (e) => {
     btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Connexion...';
     btn.disabled = true;
     try {
-        const r = await fetch('/api/login', {method:'POST', headers:{'Content-Type':'application/json'},
+        const r = await fetch('/api/login', {method:'POST', credentials:'include',
+            headers:{'Content-Type':'application/json'},
             body: JSON.stringify({username: document.getElementById('login-user').value, password: document.getElementById('login-pass').value})});
         if (!r.ok) { const d = await r.json(); throw new Error(d.detail || 'Erreur'); }
         const data = await r.json();
         TOKEN = data.access_token;
         localStorage.setItem('fatigest_token', TOKEN);
+        if (data.default_password) {
+            setTimeout(() => showToast('⚠ Utilisez le mot de passe par défaut. Changez-le.', false), 500);
+        }
         document.getElementById('login-screen').classList.add('hidden');
         document.getElementById('app').classList.remove('hidden');
         switchView('dashboard');
@@ -999,7 +1956,7 @@ window.addEventListener('beforeunload', e => {
 // Escape to close modals/forms
 document.addEventListener('keydown', e => {
     if (e.key === 'Escape') {
-        const modals = ['modal-fac','modal-abo','modal-print','modal-confirm'];
+        const modals = ['modal-fac','modal-devis','modal-abo','modal-print','modal-confirm','modal-client-detail'];
         for (const m of modals) {
             const el = document.getElementById(m);
             if (el && !el.classList.contains('hidden')) { closeModal(m); return; }
@@ -1012,8 +1969,22 @@ document.addEventListener('keydown', e => {
     }
 });
 
+let _statsCache = null, _statsCacheTs = 0;
 async function loadStats() {
+    const now = Date.now();
+    if (_statsCache && now - _statsCacheTs < 8000) {
+        const s = _statsCache;
+        document.getElementById('stat-clients').innerText=s.clients;
+        document.getElementById('stat-articles').innerText=s.articles;
+        document.getElementById('stat-abonnements').innerText=s.abonnements||0;
+        document.getElementById('stat-brouillons').innerText=s.brouillons;
+        document.getElementById('stat-ca').innerHTML=(s.ca||0).toLocaleString()+' DH';
+        document.getElementById('stat-reglements').innerHTML=(s.reglements||0).toLocaleString()+' DH';
+        return;
+    }
     const s=await api('/api/stats');
+    _statsCache = s;
+    _statsCacheTs = now;
     document.getElementById('stat-clients').innerText=s.clients;
     document.getElementById('stat-articles').innerText=s.articles;
     document.getElementById('stat-abonnements').innerText=s.abonnements||0;
@@ -1135,9 +2106,9 @@ const subtitles={
 
 function switchView(v) {
     currentView=v;
-    document.querySelectorAll('aside nav button').forEach(b=>{ b.classList.remove('bg-indigo-600','text-white'); b.classList.add('text-slate-400'); });
+    document.querySelectorAll('.sidebar-link').forEach(b=>b.classList.remove('active'));
     const btn=document.getElementById('btn-'+v);
-    if(btn){btn.classList.add('bg-indigo-600','text-white');btn.classList.remove('text-slate-400');}
+    if(btn)btn.classList.add('active');
     document.querySelectorAll('[id^="list-"]').forEach(el=>el.classList.add('hidden'));
     document.getElementById('list-'+v)?.classList.remove('hidden');
     document.querySelectorAll('[id^="form-"]').forEach(el=>el.classList.add('hidden'));
@@ -1889,9 +2860,9 @@ function renderRapportFilters(type) {
 
 function switchRapport(type) {
     rapportType = type;
-    document.querySelectorAll('#list-rapports .flex-wrap button').forEach(b => b.removeAttribute('data-active'));
+    document.querySelectorAll('#list-rapports .btn-outline').forEach(b => { b.classList.remove('btn-primary'); b.classList.add('btn-outline'); });
     const btn = document.getElementById('rbtn-' + type);
-    if (btn) btn.setAttribute('data-active', '');
+    if (btn) { btn.classList.remove('btn-outline'); btn.classList.add('btn-primary'); }
     renderRapportFilters(type);
     loadRapport(type);
 }

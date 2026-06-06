@@ -17,6 +17,7 @@ def to_dict(row) -> Optional[dict]:
     return dict(row) if row else None
 
 def paginate(items: list, page: int = 1, per_page: int = 50) -> dict:
+    per_page = min(per_page, 100)
     total = len(items)
     pages = max(1, (total + per_page - 1) // per_page)
     start = (page - 1) * per_page

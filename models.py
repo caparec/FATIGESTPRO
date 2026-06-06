@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import List, Optional
 
 class ClientSchema(BaseModel):
@@ -34,15 +34,15 @@ class ArticleSchema(BaseModel):
 class LigneFacture(BaseModel):
     art_cod: str = ""
     art_lib: str = ""
-    qte: float = 1
-    pu: float = 0
-    remise: float = 0
+    qte: float = Field(1, ge=0)
+    pu: float = Field(0, ge=0)
+    remise: float = Field(0, ge=0, le=100)
 
 class FactureSchema(BaseModel):
     fac_cli_cod: str
     fac_dat: Optional[str] = None
-    fac_mt_ht: float = 0
-    fac_tva: float = 20.0
+    fac_mt_ht: float = Field(0, ge=0)
+    fac_tva: float = Field(20.0, ge=0, le=100)
     fac_echeance: str = "30 jours"
     fac_etat: str = "BROUILLON"
     fac_type: str = "PONCTUEL"
@@ -53,14 +53,14 @@ class ReglementSchema(BaseModel):
     reg_cli_cod: str
     reg_fac_num: Optional[int] = None
     reg_dat: Optional[str] = None
-    reg_mt: float
+    reg_mt: float = Field(..., gt=0)
     reg_mode: str = "VIREMENT"
     reg_ref: Optional[str] = None
 
 class AbonnementSchema(BaseModel):
     cli_cod: str
     cli_abo_cadence: str = "AUCUNE"
-    cli_abo_montant: float = 0
+    cli_abo_montant: float = Field(0, ge=0)
     cli_abo_next: Optional[str] = None
 
 class LoginRequest(BaseModel):
