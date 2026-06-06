@@ -1,0 +1,7 @@
+  File "C:\zfacile\main.py", line 31
+    ("cli_mode_reg",VIREMENT' "TEXT DEFAULT '"),
+                                             ^
+SyntaxError: unterminated string literal (detected at line 31)
+
+--- FATIGEST PRO ACTIF ---
+URL: http://127.0.0.1:8000

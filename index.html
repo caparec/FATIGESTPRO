@@ -1,0 +1,2457 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FATIGEST Pro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #f1f5f9; }
+        @media print { .no-print { display:none!important; } }
+        .modal-overlay { background: rgba(15,23,42,0.6); backdrop-filter: blur(4px); }
+        .field-valid { border-color: #10b981!important; background: #f0fdf4!important; }
+        .field-invalid { border-color: #ef4444!important; background: #fef2f2!important; }
+        .form-error-msg { color: #ef4444; font-size: 10px; font-weight: 700; margin-top: 2px; display: none; }
+        .field-required::after { content: ' *'; color: #ef4444; }
+        .btn-loading { pointer-events: none; opacity: 0.7; }
+        input, select, textarea { transition: border-color 0.2s, background 0.2s; }
+        .unsaved-dot { width: 8px; height: 8px; background: #f59e0b; border-radius: 50%; display: inline-block; }
+    </style>
+</head>
+<body class="text-slate-800">
+
+<!-- ===== LOGIN SCREEN ===== -->
+<div id="login-screen" class="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-950">
+    <div class="bg-white/95 backdrop-blur rounded-[3rem] p-10 w-full max-w-md shadow-2xl border border-white/20">
+        <div class="text-center mb-8">
+            <div class="w-16 h-16 bg-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-indigo-500/30">
+                <i class="fas fa-file-invoice text-white text-2xl"></i>
+            </div>
+            <h1 class="text-3xl font-black text-slate-900">FATIGEST <span class="text-indigo-600">PRO</span></h1>
+            <p class="text-slate-500 text-sm mt-1">Gestion commerciale</p>
+        </div>
+        <form id="login-form" class="space-y-5">
+            <div>
+                <label class="text-xs font-bold text-slate-500 px-1">Identifiant</label>
+                <input type="text" id="login-user" value="admin" required class="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none focus:border-indigo-500 font-bold transition">
+            </div>
+            <div>
+                <label class="text-xs font-bold text-slate-500 px-1">Mot de passe</label>
+                <input type="password" id="login-pass" required class="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none focus:border-indigo-500 font-bold transition">
+            </div>
+            <button type="submit" class="w-full bg-indigo-600 text-white py-4 rounded-2xl font-black text-lg shadow-xl hover:bg-indigo-700 transition">
+                <i class="fas fa-right-to-bracket mr-2"></i>Connexion
+            </button>
+            <p id="login-error" class="text-red-500 text-sm font-bold text-center hidden"></p>
+        </form>
+    </div>
+</div>
+
+<!-- ===== MAIN APP ===== -->
+<div id="app" class="hidden">
+<div class="flex min-h-screen">
+    <aside class="w-20 lg:w-64 bg-slate-900 text-white p-4 lg:p-6 flex flex-col fixed h-full z-50">
+        <div class="mb-6 flex items-center gap-3">
+            <div class="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center shrink-0">
+                <i class="fas fa-file-invoice text-white"></i>
+            </div>
+            <span class="hidden lg:inline font-extrabold text-xl tracking-tighter">FATIGEST <span class="text-indigo-400">PRO</span></span>
+        </div>
+        <nav class="space-y-1 flex-1 text-sm">
+            <button onclick="switchView('dashboard')" id="btn-dashboard" class="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-slate-800 transition text-slate-400 hover:text-white">
+                <i class="fas fa-chart-pie w-5"></i><span class="hidden lg:inline font-bold">Tableau de Bord</span>
+            </button>
+            <button onclick="switchView('clients')" id="btn-clients" class="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-slate-800 transition text-slate-400 hover:text-white">
+                <i class="fas fa-users w-5"></i><span class="hidden lg:inline font-bold">Clients</span>
+            </button>
+            <button onclick="switchView('articles')" id="btn-articles" class="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-slate-800 transition text-slate-400 hover:text-white">
+                <i class="fas fa-box w-5"></i><span class="hidden lg:inline font-bold">Articles</span>
+            </button>
+            <button onclick="switchView('factures')" id="btn-factures" class="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-slate-800 transition text-slate-400 hover:text-white">
+                <i class="fas fa-file-invoice-dollar w-5"></i><span class="hidden lg:inline font-bold">Factures</span>
+            </button>
+            <button onclick="switchView('devis')" id="btn-devis" class="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-slate-800 transition text-slate-400 hover:text-white">
+                <i class="fas fa-file-pen w-5"></i><span class="hidden lg:inline font-bold">Devis</span>
+            </button>
+            <button onclick="switchView('reglements')" id="btn-reglements" class="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-slate-800 transition text-slate-400 hover:text-white">
+                <i class="fas fa-credit-card w-5"></i><span class="hidden lg:inline font-bold">Règlements</span>
+            </button>
+            <button onclick="switchView('abonnements')" id="btn-abonnements" class="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-slate-800 transition text-slate-400 hover:text-white">
+                <i class="fas fa-sync w-5"></i><span class="hidden lg:inline font-bold">Abonnements</span>
+            </button>
+            <button onclick="switchView('rapports')" id="btn-rapports" class="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-slate-800 transition text-slate-400 hover:text-white">
+                <i class="fas fa-chart-bar w-5"></i><span class="hidden lg:inline font-bold">Rapports</span>
+            </button>
+            <button onclick="switchView('sauvegarde')" id="btn-sauvegarde" class="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-slate-800 transition text-slate-400 hover:text-white">
+                <i class="fas fa-database w-5"></i><span class="hidden lg:inline font-bold">Sauvegarde</span>
+            </button>
+        </nav>
+        <div class="space-y-1 pt-4 border-t border-slate-800">
+            <button id="btn-new" onclick="newItem(currentView)" class="w-full flex items-center gap-3 p-3 rounded-xl bg-indigo-600 text-white shadow-lg shadow-indigo-500/20 text-sm">
+                <i class="fas fa-plus w-5"></i><span class="hidden lg:inline font-bold text-sm" id="btn-new-label">Nouveau Client</span>
+            </button>
+            <button onclick="logout()" class="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-red-900/30 transition text-red-400 hover:text-red-300 text-sm mt-2">
+                <i class="fas fa-sign-out-alt w-5"></i><span class="hidden lg:inline font-bold">Déconnexion</span>
+            </button>
+        </div>
+    </aside>
+
+    <main class="flex-1 ml-20 lg:ml-64 p-4 lg:p-10">
+        <header class="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-8 gap-4">
+            <div>
+                <h1 id="view-title" class="text-3xl font-black text-slate-900">Tableau de Bord</h1>
+                <p id="view-subtitle" class="text-slate-500 text-sm">Vue d'ensemble.</p>
+            </div>
+            <div class="relative flex-1 lg:flex-none">
+                <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                <input type="text" id="search" oninput="loadData()" placeholder="Rechercher..." class="w-full lg:w-80 pl-11 pr-4 py-3 bg-white border border-slate-200 rounded-2xl outline-none focus:ring-4 ring-indigo-500/10 text-sm font-medium">
+            </div>
+        </header>
+
+        <!-- STATS ROW -->
+        <div class="grid grid-cols-2 md:grid-cols-6 gap-4 mb-8 stats-row">
+            <div class="bg-white p-4 rounded-2xl border-l-4 border-indigo-500">
+                <p class="text-[10px] font-bold text-slate-400 uppercase">Clients</p>
+                <p id="stat-clients" class="text-2xl font-black">-</p>
+            </div>
+            <div class="bg-white p-4 rounded-2xl border-l-4 border-cyan-500">
+                <p class="text-[10px] font-bold text-slate-400 uppercase">Articles</p>
+                <p id="stat-articles" class="text-2xl font-black">-</p>
+            </div>
+            <div class="bg-white p-4 rounded-2xl border-l-4 border-purple-500">
+                <p class="text-[10px] font-bold text-slate-400 uppercase">Abonnements</p>
+                <p id="stat-abonnements" class="text-2xl font-black">-</p>
+            </div>
+            <div class="bg-white p-4 rounded-2xl border-l-4 border-orange-500">
+                <p class="text-[10px] font-bold text-slate-400 uppercase">Brouillons</p>
+                <p id="stat-brouillons" class="text-2xl font-black text-orange-600">-</p>
+            </div>
+            <div class="bg-white p-4 rounded-2xl border-l-4 border-emerald-500">
+                <p class="text-[10px] font-bold text-slate-400 uppercase">CA (valide)</p>
+                <p id="stat-ca" class="text-2xl font-black text-emerald-600">-</p>
+            </div>
+            <div class="bg-white p-4 rounded-2xl border-l-4 border-blue-500">
+                <p class="text-[10px] font-bold text-slate-400 uppercase">Règlements</p>
+                <p id="stat-reglements" class="text-2xl font-black text-blue-600">-</p>
+            </div>
+        </div>
+
+        <!-- BATCH SELECTION BAR -->
+        <div id="batch-bar" class="hidden fixed bottom-0 left-0 right-0 z-50 bg-indigo-600 text-white px-6 py-3 shadow-2xl flex items-center justify-between">
+            <div><span class="font-bold" id="batch-count">0</span> sélectionné(s)</div>
+            <div class="flex gap-3">
+                <button onclick="batchDelete()" class="bg-red-500 text-white px-5 py-2 rounded-xl font-bold text-sm hover:bg-red-600"><i class="fas fa-trash mr-1"></i>Supprimer</button>
+                <button onclick="batchClear()" class="bg-white/20 text-white px-5 py-2 rounded-xl font-bold text-sm hover:bg-white/30">Annuler</button>
+            </div>
+        </div>
+
+        <!-- DASHBOARD -->
+        <div id="list-dashboard" class="space-y-6">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="bg-white rounded-2xl p-6 border shadow-sm"><h3 class="font-black text-sm mb-4">CA Mensuel (année en cours)</h3><canvas id="chart-ca" height="200"></canvas></div>
+                <div class="bg-white rounded-2xl p-6 border shadow-sm"><h3 class="font-black text-sm mb-4">Top 10 Clients</h3><canvas id="chart-top" height="200"></canvas></div>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="bg-white rounded-2xl p-6 border shadow-sm"><h3 class="font-black text-sm mb-4">Évolution CA</h3><canvas id="chart-evolution" height="180"></canvas></div>
+                <div class="bg-white rounded-2xl p-6 border shadow-sm"><h3 class="font-black text-sm mb-4">Règlements par mode</h3><canvas id="chart-reg" height="180"></canvas></div>
+            </div>
+        </div>
+
+        <!-- CLIENTS -->
+        <div id="list-clients" class="hidden">
+            <div class="flex justify-between items-center mb-4 gap-2">
+                <div class="text-sm text-slate-400 font-bold" id="clients-pagination-info"></div>
+                <div class="flex gap-2">
+                    <button onclick="toggleFilters('clients')" class="bg-slate-100 text-slate-600 px-4 py-3 rounded-2xl font-bold text-sm hover:bg-indigo-50" id="filter-btn-clients"><i class="fas fa-sliders-h mr-2"></i>Filtres</button>
+                    <button onclick="exportCSV('clients')" class="bg-slate-100 text-slate-600 px-4 py-3 rounded-2xl font-bold text-sm"><i class="fas fa-file-csv mr-2"></i>Export</button>
+                    <button onclick="newClient()" class="bg-indigo-600 text-white px-6 py-3 rounded-2xl font-bold text-sm shadow-lg"><i class="fas fa-plus mr-2"></i>Nouveau Client</button>
+                </div>
+            </div>
+            <div id="filters-clients" class="hidden bg-white rounded-2xl p-4 border shadow-sm mb-4">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    <select id="filter-clients-actif" onchange="applyFilters('clients')" class="p-2 bg-slate-50 border rounded-xl text-xs font-bold">
+                        <option value="">Tous les clients</option>
+                        <option value="1">Actifs seulement</option>
+                        <option value="0">Inactifs seulement</option>
+                    </select>
+                    <select id="filter-clients-mode_reg" onchange="applyFilters('clients')" class="p-2 bg-slate-50 border rounded-xl text-xs font-bold">
+                        <option value="">Tous modes</option>
+                        <option value="VIREMENT">Virement</option>
+                        <option value="CHEQUE">Chèque</option>
+                        <option value="ESPECES">Espèces</option>
+                    </select>
+                    <input type="text" id="filter-clients-ville" placeholder="Ville..." oninput="debounceFilters('clients')" class="p-2 bg-slate-50 border rounded-xl text-xs">
+                    <button onclick="resetFilters('clients')" class="p-2 bg-red-50 text-red-500 rounded-xl text-xs font-bold"><i class="fas fa-undo mr-1"></i>Réinitialiser</button>
+                </div>
+            </div>
+            <div class="flex items-center gap-3 mb-4 text-xs">
+                <span class="font-bold text-slate-400 uppercase">Trier par</span>
+                <button onclick="sortTable('clients','cli_raso')" class="sort-btn px-3 py-2 rounded-xl bg-slate-100 font-bold hover:bg-indigo-50 transition">Raison Sociale <i class="sort-icon fas fa-sort text-[10px] ml-1"></i></button>
+                <button onclick="sortTable('clients','cli_cod')" class="sort-btn px-3 py-2 rounded-xl bg-slate-100 font-bold hover:bg-indigo-50 transition">Code <i class="sort-icon fas fa-sort text-[10px] ml-1"></i></button>
+                <button onclick="sortTable('clients','cli_vil')" class="sort-btn px-3 py-2 rounded-xl bg-slate-100 font-bold hover:bg-indigo-50 transition">Ville <i class="sort-icon fas fa-sort text-[10px] ml-1"></i></button>
+                <button onclick="sortTable('clients','cli_ice')" class="sort-btn px-3 py-2 rounded-xl bg-slate-100 font-bold hover:bg-indigo-50 transition">ICE <i class="sort-icon fas fa-sort text-[10px] ml-1"></i></button>
+                <button onclick="sortTable('clients','cli_abo_montant')" class="sort-btn px-3 py-2 rounded-xl bg-slate-100 font-bold hover:bg-indigo-50 transition">Abonnement <i class="sort-icon fas fa-sort text-[10px] ml-1"></i></button>
+            </div>
+            <div id="clients-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6"></div>
+            <div id="clients-pagination" class="flex justify-center gap-2 mt-6"></div>
+        </div>
+
+        <!-- ARTICLES -->
+        <div id="list-articles" class="hidden">
+            <div class="flex justify-between items-center mb-4 gap-2">
+                <div class="text-sm text-slate-400 font-bold" id="articles-pagination-info"></div>
+                <div class="flex gap-2">
+                    <button onclick="toggleFilters('articles')" class="bg-slate-100 text-slate-600 px-4 py-3 rounded-2xl font-bold text-sm hover:bg-indigo-50" id="filter-btn-articles"><i class="fas fa-sliders-h mr-2"></i>Filtres</button>
+                    <button onclick="exportCSV('articles')" class="bg-slate-100 text-slate-600 px-4 py-3 rounded-2xl font-bold text-sm"><i class="fas fa-file-csv mr-2"></i>Export</button>
+                    <button onclick="newArticle()" class="bg-indigo-600 text-white px-6 py-3 rounded-2xl font-bold text-sm shadow-lg"><i class="fas fa-plus mr-2"></i>Nouvel Article</button>
+                </div>
+            </div>
+            <div id="filters-articles" class="hidden bg-white rounded-2xl p-4 border shadow-sm mb-4">
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    <input type="text" id="filter-articles-famille" placeholder="Famille..." oninput="debounceFilters('articles')" class="p-2 bg-slate-50 border rounded-xl text-xs">
+                    <button onclick="resetFilters('articles')" class="p-2 bg-red-50 text-red-500 rounded-xl text-xs font-bold"><i class="fas fa-undo mr-1"></i>Réinitialiser</button>
+                </div>
+            </div>
+            <div class="bg-white rounded-2xl shadow-sm border overflow-hidden">
+                <table class="w-full text-left"><thead class="bg-slate-50 border-b text-slate-500 text-sm uppercase">
+                    <tr><th class="p-2 w-10"><input type="checkbox" onchange="batchToggleAll('articles', this.checked)" class="cursor-pointer"></th>
+                        <th class="p-4 cursor-pointer hover:text-indigo-600" onclick="sortTable('articles','art_cod')">Code <i class="sort-icon fas fa-sort text-[10px] ml-1"></i></th>
+                        <th class="p-4 cursor-pointer hover:text-indigo-600" onclick="sortTable('articles','art_lib')">Libellé <i class="sort-icon fas fa-sort text-[10px] ml-1"></i></th>
+                        <th class="p-4 cursor-pointer hover:text-indigo-600" onclick="sortTable('articles','art_faar')">Famille <i class="sort-icon fas fa-sort text-[10px] ml-1"></i></th>
+                        <th class="p-4 text-right cursor-pointer hover:text-indigo-600" onclick="sortTable('articles','art_prveT')">Prix Revient <i class="sort-icon fas fa-sort text-[10px] ml-1"></i></th>
+                        <th class="p-4 text-right cursor-pointer hover:text-indigo-600" onclick="sortTable('articles','art_pracT')">Prix Vente <i class="sort-icon fas fa-sort text-[10px] ml-1"></i></th>
+                        <th class="p-4 text-right cursor-pointer hover:text-indigo-600" onclick="sortTable('articles','art_stk')">Stock <i class="sort-icon fas fa-sort text-[10px] ml-1"></i></th><th class="p-4 text-center">Action</th></tr>
+                </thead><tbody id="articles-body" class="divide-y"></tbody></table>
+            </div>
+            <div id="articles-pagination" class="flex justify-center gap-2 mt-6"></div>
+        </div>
+
+        <!-- FACTURES -->
+        <div id="list-factures" class="hidden">
+            <div class="flex justify-between items-center mb-4 gap-2">
+                <div class="text-sm text-slate-400 font-bold" id="factures-pagination-info"></div>
+                <div class="flex gap-2">
+                    <button onclick="toggleFilters('factures')" class="bg-slate-100 text-slate-600 px-4 py-3 rounded-2xl font-bold text-sm hover:bg-indigo-50" id="filter-btn-factures"><i class="fas fa-sliders-h mr-2"></i>Filtres</button>
+                    <button onclick="exportCSV('factures')" class="bg-slate-100 text-slate-600 px-4 py-3 rounded-2xl font-bold text-sm"><i class="fas fa-file-csv mr-2"></i>Export</button>
+                    <button onclick="openFacCreate()" class="bg-indigo-600 text-white px-6 py-3 rounded-2xl font-bold text-sm shadow-lg"><i class="fas fa-plus mr-2"></i>Nouvelle Facture</button>
+                </div>
+            </div>
+            <div id="filters-factures" class="hidden bg-white rounded-2xl p-4 border shadow-sm mb-4">
+                <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
+                    <select id="filter-factures-etat" onchange="applyFilters('factures')" class="p-2 bg-slate-50 border rounded-xl text-xs font-bold">
+                        <option value="">Tous états</option>
+                        <option value="BROUILLON">Brouillon</option>
+                        <option value="VALIDE">Validée</option>
+                    </select>
+                    <select id="filter-factures-type" onchange="applyFilters('factures')" class="p-2 bg-slate-50 border rounded-xl text-xs font-bold">
+                        <option value="">Tous types</option>
+                        <option value="PONCTUEL">Ponctuel</option>
+                        <option value="ABONNEMENT">Abonnement</option>
+                    </select>
+                    <div><p class="text-[9px] font-bold text-slate-400 mb-1">Du</p><input type="date" id="filter-factures-dfrom" onchange="applyFilters('factures')" class="w-full p-2 bg-slate-50 border rounded-xl text-xs"></div>
+                    <div><p class="text-[9px] font-bold text-slate-400 mb-1">Au</p><input type="date" id="filter-factures-dto" onchange="applyFilters('factures')" class="w-full p-2 bg-slate-50 border rounded-xl text-xs"></div>
+                    <button onclick="resetFilters('factures')" class="p-2 bg-red-50 text-red-500 rounded-xl text-xs font-bold self-end"><i class="fas fa-undo mr-1"></i>Réinitialiser</button>
+                </div>
+            </div>
+            <div class="bg-white rounded-2xl shadow-sm border overflow-hidden">
+                <table class="w-full text-left"><thead class="bg-slate-50 border-b text-slate-500 text-sm uppercase">
+                    <tr><th class="p-2 w-10"><input type="checkbox" onchange="batchToggleAll('factures', this.checked)" class="cursor-pointer"></th>
+                        <th class="p-4 cursor-pointer hover:text-indigo-600" onclick="sortTable('factures','fac_num')">N° <i class="sort-icon fas fa-sort text-[10px] ml-1"></i></th>
+                        <th class="p-4 cursor-pointer hover:text-indigo-600" onclick="sortTable('factures','fac_dat')">Date <i class="sort-icon fas fa-sort text-[10px] ml-1"></i></th>
+                        <th class="p-4 cursor-pointer hover:text-indigo-600" onclick="sortTable('factures','cli_raso')">Client <i class="sort-icon fas fa-sort text-[10px] ml-1"></i></th>
+                        <th class="p-4 text-right cursor-pointer hover:text-indigo-600" onclick="sortTable('factures','fac_mt_ht')">HT <i class="sort-icon fas fa-sort text-[10px] ml-1"></i></th>
+                        <th class="p-4 text-right">TVA</th><th class="p-4 text-right">TTC</th><th class="p-4 text-right">Réglé</th><th class="p-4 text-right text-red-600">Reste</th><th class="p-4 text-center">Type</th><th class="p-4 text-center">État</th><th class="p-4 text-center">Action</th></tr>
+                </thead><tbody id="factures-body" class="divide-y"></tbody></table>
+            </div>
+            <div id="factures-pagination" class="flex justify-center gap-2 mt-6"></div>
+        </div>
+
+        <!-- REGLEMENTS -->
+        <div id="list-reglements" class="hidden">
+            <div class="flex justify-between items-center mb-4 gap-2">
+                <div class="text-sm text-slate-400 font-bold" id="reglements-pagination-info"></div>
+                <div class="flex gap-2">
+                    <button onclick="toggleFilters('reglements')" class="bg-slate-100 text-slate-600 px-4 py-3 rounded-2xl font-bold text-sm hover:bg-indigo-50" id="filter-btn-reglements"><i class="fas fa-sliders-h mr-2"></i>Filtres</button>
+                    <button onclick="exportCSV('reglements')" class="bg-slate-100 text-slate-600 px-4 py-3 rounded-2xl font-bold text-sm"><i class="fas fa-file-csv mr-2"></i>Export</button>
+                    <button onclick="newReglement()" class="bg-indigo-600 text-white px-6 py-3 rounded-2xl font-bold text-sm shadow-lg"><i class="fas fa-plus mr-2"></i>Nouveau Règlement</button>
+                </div>
+            </div>
+            <div id="filters-reglements" class="hidden bg-white rounded-2xl p-4 border shadow-sm mb-4">
+                <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
+                    <select id="filter-reglements-mode" onchange="applyFilters('reglements')" class="p-2 bg-slate-50 border rounded-xl text-xs font-bold">
+                        <option value="">Tous modes</option>
+                        <option value="VIREMENT">Virement</option>
+                        <option value="CHEQUE">Chèque</option>
+                        <option value="ESPECES">Espèces</option>
+                    </select>
+                    <div><p class="text-[9px] font-bold text-slate-400 mb-1">Du</p><input type="date" id="filter-reglements-dfrom" onchange="applyFilters('reglements')" class="w-full p-2 bg-slate-50 border rounded-xl text-xs"></div>
+                    <div><p class="text-[9px] font-bold text-slate-400 mb-1">Au</p><input type="date" id="filter-reglements-dto" onchange="applyFilters('reglements')" class="w-full p-2 bg-slate-50 border rounded-xl text-xs"></div>
+                    <button onclick="resetFilters('reglements')" class="p-2 bg-red-50 text-red-500 rounded-xl text-xs font-bold"><i class="fas fa-undo mr-1"></i>Réinitialiser</button>
+                </div>
+            </div>
+            <div class="bg-white rounded-2xl shadow-sm border overflow-hidden">
+                <table class="w-full text-left"><thead class="bg-slate-50 border-b text-slate-500 text-sm uppercase">
+                    <tr><th class="p-2 w-10"><input type="checkbox" onchange="batchToggleAll('reglements', this.checked)" class="cursor-pointer"></th>
+                        <th class="p-4 cursor-pointer hover:text-indigo-600" onclick="sortTable('reglements','reg_id')">N° <i class="sort-icon fas fa-sort text-[10px] ml-1"></i></th>
+                        <th class="p-4 cursor-pointer hover:text-indigo-600" onclick="sortTable('reglements','reg_dat')">Date <i class="sort-icon fas fa-sort text-[10px] ml-1"></i></th>
+                        <th class="p-4 cursor-pointer hover:text-indigo-600" onclick="sortTable('reglements','cli_raso')">Client <i class="sort-icon fas fa-sort text-[10px] ml-1"></i></th>
+                        <th class="p-4 text-right cursor-pointer hover:text-indigo-600" onclick="sortTable('reglements','reg_mt')">Montant <i class="sort-icon fas fa-sort text-[10px] ml-1"></i></th>
+                        <th class="p-4 cursor-pointer hover:text-indigo-600" onclick="sortTable('reglements','reg_mode')">Mode <i class="sort-icon fas fa-sort text-[10px] ml-1"></i></th>
+                        <th class="p-4">Référence</th><th class="p-4 text-center">Action</th></tr>
+                </thead><tbody id="reglements-body" class="divide-y"></tbody></table>
+            </div>
+            <div id="reglements-pagination" class="flex justify-center gap-2 mt-6"></div>
+        </div>
+
+        <!-- ABONNEMENTS -->
+        <div id="list-abonnements" class="hidden space-y-6">
+            <div class="flex justify-between items-center gap-2">
+                <div class="flex gap-2">
+                    <button onclick="toggleFilters('abonnements')" class="bg-slate-100 text-slate-600 px-4 py-3 rounded-2xl font-bold text-sm hover:bg-indigo-50" id="filter-btn-abonnements"><i class="fas fa-sliders-h mr-2"></i>Filtres</button>
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="genererAbonnements()" class="bg-purple-600 text-white px-6 py-3 rounded-2xl font-bold text-sm shadow-lg"><i class="fas fa-magic mr-2"></i>Générer Factures</button>
+                </div>
+            </div>
+            <div id="filters-abonnements" class="hidden bg-white rounded-2xl p-4 border shadow-sm">
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    <select id="filter-abonnements-cadence" onchange="applyFilters('abonnements')" class="p-2 bg-slate-50 border rounded-xl text-xs font-bold">
+                        <option value="">Toutes cadences</option>
+                        <option value="MENSUEL">Mensuel</option>
+                        <option value="TRIMESTRIEL">Trimestriel</option>
+                        <option value="ANNUEL">Annuel</option>
+                    </select>
+                    <button onclick="resetFilters('abonnements')" class="p-2 bg-red-50 text-red-500 rounded-xl text-xs font-bold"><i class="fas fa-undo mr-1"></i>Réinitialiser</button>
+                </div>
+            </div>
+            <div class="flex justify-between items-center" id="abonnements-pagination-info"></div>
+            <div class="bg-white rounded-2xl shadow-sm border overflow-hidden">
+                <table class="w-full text-left"><thead class="bg-slate-50 border-b text-slate-500 text-sm uppercase">
+                    <tr><th class="p-2 w-10"><input type="checkbox" onchange="batchToggleAll('abonnements', this.checked)" class="cursor-pointer"></th>
+                        <th class="p-4 cursor-pointer hover:text-indigo-600" onclick="sortTable('abonnements','cli_raso')">Client <i class="sort-icon fas fa-sort text-[10px] ml-1"></i></th>
+                        <th class="p-4 text-center cursor-pointer hover:text-indigo-600" onclick="sortTable('abonnements','cli_abo_cadence')">Cadence <i class="sort-icon fas fa-sort text-[10px] ml-1"></i></th>
+                        <th class="p-4 text-right cursor-pointer hover:text-indigo-600" onclick="sortTable('abonnements','cli_abo_montant')">Montant <i class="sort-icon fas fa-sort text-[10px] ml-1"></i></th>
+                        <th class="p-4 text-center cursor-pointer hover:text-indigo-600" onclick="sortTable('abonnements','cli_abo_next')">Prochaine Échéance <i class="sort-icon fas fa-sort text-[10px] ml-1"></i></th><th class="p-4 text-center">Action</th></tr>
+                </thead><tbody id="abonnements-body" class="divide-y"></tbody></table>
+            </div>
+            <div id="abonnements-pagination" class="flex justify-center gap-2 mt-6"></div>
+        </div>
+
+        <!-- DEVIS -->
+        <div id="list-devis" class="hidden">
+            <div class="flex justify-between items-center mb-4 gap-2">
+                <div class="text-sm text-slate-400 font-bold" id="devis-pagination-info"></div>
+                <div class="flex gap-2">
+                    <button onclick="toggleFilters('devis')" class="bg-slate-100 text-slate-600 px-4 py-3 rounded-2xl font-bold text-sm hover:bg-indigo-50" id="filter-btn-devis"><i class="fas fa-sliders-h mr-2"></i>Filtres</button>
+                    <button onclick="exportCSV('devis')" class="bg-slate-100 text-slate-600 px-4 py-3 rounded-2xl font-bold text-sm"><i class="fas fa-file-csv mr-2"></i>Export</button>
+                    <button onclick="newDevis()" class="bg-indigo-600 text-white px-6 py-3 rounded-2xl font-bold text-sm shadow-lg"><i class="fas fa-plus mr-2"></i>Nouveau Devis</button>
+                </div>
+            </div>
+            <div id="filters-devis" class="hidden bg-white rounded-2xl p-4 border shadow-sm mb-4">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    <select id="filter-devis-etat" onchange="applyFilters('devis')" class="p-2 bg-slate-50 border rounded-xl text-xs font-bold">
+                        <option value="">Tous états</option>
+                        <option value="BROUILLON">Brouillon</option>
+                        <option value="VALIDE">Validé</option>
+                        <option value="FACTURE">Facturé</option>
+                    </select>
+                    <div><p class="text-[9px] font-bold text-slate-400 mb-1">Du</p><input type="date" id="filter-devis-dfrom" onchange="applyFilters('devis')" class="w-full p-2 bg-slate-50 border rounded-xl text-xs"></div>
+                    <div><p class="text-[9px] font-bold text-slate-400 mb-1">Au</p><input type="date" id="filter-devis-dto" onchange="applyFilters('devis')" class="w-full p-2 bg-slate-50 border rounded-xl text-xs"></div>
+                    <button onclick="resetFilters('devis')" class="p-2 bg-red-50 text-red-500 rounded-xl text-xs font-bold self-end"><i class="fas fa-undo mr-1"></i>Réinitialiser</button>
+                </div>
+            </div>
+            <div class="bg-white rounded-2xl shadow-sm border overflow-hidden">
+                <table class="w-full text-left"><thead class="bg-slate-50 border-b text-slate-500 text-sm uppercase">
+                    <tr><th class="p-2 w-10"><input type="checkbox" onchange="batchToggleAll('devis', this.checked)" class="cursor-pointer"></th>
+                        <th class="p-4 cursor-pointer hover:text-indigo-600" onclick="sortTable('devis','dev_num')">N° <i class="sort-icon fas fa-sort text-[10px] ml-1"></i></th>
+                        <th class="p-4 cursor-pointer hover:text-indigo-600" onclick="sortTable('devis','dev_dat')">Date <i class="sort-icon fas fa-sort text-[10px] ml-1"></i></th>
+                        <th class="p-4 cursor-pointer hover:text-indigo-600" onclick="sortTable('devis','cli_raso')">Client <i class="sort-icon fas fa-sort text-[10px] ml-1"></i></th>
+                        <th class="p-4 text-right cursor-pointer hover:text-indigo-600" onclick="sortTable('devis','dev_mt_ht')">Montant <i class="sort-icon fas fa-sort text-[10px] ml-1"></i></th>
+                        <th class="p-4 text-center">État</th><th class="p-4 text-center">Action</th></tr>
+                </thead><tbody id="devis-body" class="divide-y"></tbody></table>
+            </div>
+            <div id="devis-pagination" class="flex justify-center gap-2 mt-6"></div>
+        </div>
+
+        <!-- RAPPORTS -->
+        <div id="list-rapports" class="hidden space-y-6">
+            <div class="flex flex-wrap gap-2 mb-4">
+                <button onclick="switchRapport('ca-client')" class="bg-white border px-5 py-3 rounded-2xl font-bold text-sm hover:bg-indigo-50 data-[active]:bg-indigo-600 data-[active]:text-white data-[active]:shadow-lg" id="rbtn-ca-client"><i class="fas fa-chart-simple mr-2"></i>CA par Client</button>
+                <button onclick="switchRapport('ca-article')" class="bg-white border px-5 py-3 rounded-2xl font-bold text-sm hover:bg-indigo-50 data-[active]:bg-indigo-600 data-[active]:text-white data-[active]:shadow-lg" id="rbtn-ca-article"><i class="fas fa-box mr-2"></i>CA par Article</button>
+                <button onclick="switchRapport('encaissements')" class="bg-white border px-5 py-3 rounded-2xl font-bold text-sm hover:bg-indigo-50 data-[active]:bg-indigo-600 data-[active]:text-white data-[active]:shadow-lg" id="rbtn-encaissements"><i class="fas fa-hand-holding-usd mr-2"></i>Encaissements</button>
+                <button onclick="switchRapport('restant')" class="bg-white border px-5 py-3 rounded-2xl font-bold text-sm hover:bg-indigo-50 data-[active]:bg-indigo-600 data-[active]:text-white data-[active]:shadow-lg" id="rbtn-restant"><i class="fas fa-clock mr-2"></i>Restant à Payer</button>
+                <button onclick="switchRapport('impayes')" class="bg-white border px-5 py-3 rounded-2xl font-bold text-sm hover:bg-indigo-50 data-[active]:bg-indigo-600 data-[active]:text-white data-[active]:shadow-lg" id="rbtn-impayes"><i class="fas fa-exclamation-triangle mr-2"></i>Impayés</button>
+                <button onclick="switchRapport('tva')" class="bg-white border px-5 py-3 rounded-2xl font-bold text-sm hover:bg-indigo-50 data-[active]:bg-indigo-600 data-[active]:text-white data-[active]:shadow-lg" id="rbtn-tva"><i class="fas fa-calculator mr-2"></i>TVA</button>
+                <button onclick="switchRapport('ca-mensuel')" class="bg-white border px-5 py-3 rounded-2xl font-bold text-sm hover:bg-indigo-50 data-[active]:bg-indigo-600 data-[active]:text-white data-[active]:shadow-lg" id="rbtn-ca-mensuel"><i class="fas fa-line-chart mr-2"></i>CA Mensuel</button>
+            </div>
+            <div id="rapport-filters" class="bg-white rounded-2xl shadow-sm border overflow-hidden p-4 hidden">
+                <div class="flex flex-wrap items-end gap-3" id="rapport-filter-controls"></div>
+            </div>
+            <div id="rapport-container" class="bg-white rounded-2xl shadow-sm border overflow-hidden p-6">
+                <p class="text-slate-400 text-sm font-bold">Sélectionnez un rapport ci-dessus.</p>
+            </div>
+        </div>
+
+        <!-- SAUVEGARDE -->
+        <div id="list-sauvegarde" class="hidden max-w-2xl space-y-6">
+            <div class="bg-white rounded-2xl p-6 border shadow-sm">
+                <h3 class="font-black mb-2">Créer une sauvegarde</h3>
+                <p class="text-sm text-slate-500 mb-4">Télécharge une archive ZIP de la base de données et des logs.</p>
+                <button onclick="createBackup()" class="bg-indigo-600 text-white px-6 py-3 rounded-2xl font-bold text-sm shadow-lg"><i class="fas fa-download mr-2"></i>Créer et Télécharger</button>
+            </div>
+            <div class="bg-white rounded-2xl p-6 border shadow-sm">
+                <h3 class="font-black mb-4">Sauvegardes existantes</h3>
+                <div id="backup-list" class="space-y-2"></div>
+            </div>
+        </div>
+
+        <!-- FORMS -->
+        <div id="form-container" class="hidden max-w-4xl mx-auto bg-white rounded-[2.5rem] shadow-xl border overflow-hidden">
+            <div class="p-8 border-b bg-slate-50/50 flex justify-between items-center">
+                <h2 class="text-xl font-black" id="form-title">Fiche Client</h2>
+                <button onclick="closeForm()" class="text-slate-400 hover:text-slate-600"><i class="fas fa-times text-xl"></i></button>
+            </div>
+            <form id="client-form" class="p-8 space-y-8 hidden">
+                <div>
+                    <p class="text-[10px] font-black uppercase text-indigo-500 mb-4 tracking-widest">Identification</p>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="space-y-1"><label for="cli_cod" class="text-xs font-bold text-slate-500 px-1">Code</label><input type="text" id="cli_cod" required class="w-full p-3 bg-slate-50 border rounded-xl font-bold"></div>
+                        <div class="md:col-span-2 space-y-1"><label for="cli_raso" class="text-xs font-bold text-slate-500 px-1">Raison Sociale</label><input type="text" id="cli_raso" required class="w-full p-3 bg-slate-50 border rounded-xl font-bold"></div>
+                    </div>
+                </div>
+                <div>
+                    <p class="text-[10px] font-black uppercase text-indigo-500 mb-4 tracking-widest">Légal (Maroc)</p>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <input type="text" id="cli_ice" placeholder="ICE" oninput="this.value=formatICE(this.value)" maxlength="17" class="p-3 bg-slate-50 border rounded-xl text-sm font-mono">
+                        <input type="text" id="cli_if" placeholder="IF" class="p-3 bg-slate-50 border rounded-xl text-sm">
+                        <input type="text" id="cli_rc" placeholder="R.C." class="p-3 bg-slate-50 border rounded-xl text-sm">
+                        <input type="text" id="cli_patente" placeholder="Patente" class="p-3 bg-slate-50 border rounded-xl text-sm">
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="space-y-4">
+                        <p class="text-[10px] font-black uppercase text-indigo-500 tracking-widest">Coordonnées</p>
+                        <input type="email" id="cli_email" placeholder="Email" class="w-full p-3 bg-slate-50 border rounded-xl text-sm">
+                        <input type="tel" id="cli_tel" placeholder="Téléphone" oninput="this.value=formatPhone(this.value)" maxlength="11" class="w-full p-3 bg-slate-50 border rounded-xl text-sm">
+                        <input type="text" id="cli_vil" placeholder="Ville" class="w-full p-3 bg-slate-50 border rounded-xl text-sm">
+                        <textarea id="cli_adr" placeholder="Adresse" class="w-full p-3 bg-slate-50 border rounded-xl text-sm h-24"></textarea>
+                    </div>
+                    <div class="space-y-4">
+                        <p class="text-[10px] font-black uppercase text-indigo-500 tracking-widest">Paiement</p>
+                        <select id="cli_mode_reg" class="w-full p-3 bg-slate-50 border rounded-xl text-sm font-bold">
+                            <option value="VIREMENT">Virement</option><option value="CHEQUE">Chèque</option><option value="ESPECES">Espèces</option>
+                        </select>
+                        <input type="text" id="cli_banque" placeholder="Banque" class="w-full p-3 bg-slate-50 border rounded-xl text-sm">
+                        <input type="text" id="cli_rib" placeholder="RIB" class="w-full p-3 bg-slate-50 border rounded-xl text-sm font-mono">
+                        <p class="text-[10px] font-black uppercase text-indigo-500 tracking-widest">Abonnement</p>
+                        <div class="grid grid-cols-3 gap-2">
+                            <select id="cli_abo_cadence" class="p-2 bg-slate-50 border rounded-lg text-xs font-bold">
+                                <option value="AUCUNE">Aucun</option><option value="MENSUEL">Mensuel</option><option value="TRIMESTRIEL">Trimestriel</option><option value="ANNUEL">Annuel</option>
+                            </select>
+                            <input type="number" id="cli_abo_montant" step="0.01" placeholder="Montant" class="p-2 bg-slate-50 border rounded-lg text-xs">
+                            <input type="date" id="cli_abo_next" class="p-2 bg-slate-50 border rounded-lg text-xs">
+                        </div>
+                    </div>
+                </div>
+                <div class="pt-4 border-t">
+                    <label for="cli_notes" class="text-xs font-bold text-slate-500">Notes</label>
+                    <textarea id="cli_notes" rows="2" class="w-full p-3 bg-slate-50 border rounded-xl text-sm mt-1" placeholder="Notes internes sur le client..."></textarea>
+                </div>
+                <div class="pt-6 border-t flex gap-4">
+                    <button type="submit" class="bg-indigo-600 text-white px-8 py-4 rounded-2xl font-black">Enregistrer</button>
+                    <button type="button" onclick="closeForm()" class="bg-slate-100 text-slate-500 px-8 py-4 rounded-2xl font-bold">Annuler</button>
+                    <div class="flex-1"></div>
+                    <select id="cli_actif" class="p-2 bg-slate-100 rounded-lg text-xs font-black">
+                        <option value="1">ACTIF</option><option value="0">INACTIF</option>
+                    </select>
+                </div>
+            </form>
+        </div>
+
+        <!-- CLIENT DETAIL MODAL (TABS) -->
+        <div id="modal-client-detail" class="fixed inset-0 modal-overlay hidden flex items-center justify-center z-[100] p-4">
+            <div class="bg-white rounded-[2rem] w-full max-w-4xl p-8 shadow-2xl max-h-[90vh] overflow-y-auto">
+                <div class="flex justify-between items-start mb-6">
+                    <div><h3 class="text-xl font-black" id="client-detail-title">Fiche Client</h3><p class="text-indigo-600 text-sm font-bold" id="client-detail-sub"></p></div>
+                    <button onclick="closeClientDetail()" class="text-slate-400"><i class="fas fa-times text-xl"></i></button>
+                </div>
+                <div class="border-b mb-6">
+                    <div class="flex gap-6">
+                        <button onclick="switchClientTab('info')" id="ctab-info" class="pb-3 text-sm font-black text-indigo-600 border-b-2 border-indigo-600">Infos</button>
+                        <button onclick="switchClientTab('factures')" id="ctab-factures" class="pb-3 text-sm font-bold text-slate-400 hover:text-slate-700">Factures</button>
+                        <button onclick="switchClientTab('reglements')" id="ctab-reglements" class="pb-3 text-sm font-bold text-slate-400 hover:text-slate-700">Règlements</button>
+                        <button onclick="switchClientTab('situation')" id="ctab-situation" class="pb-3 text-sm font-bold text-slate-400 hover:text-slate-700">Situation</button>
+                        <button onclick="printClientSituation()" class="ml-auto pb-3 text-sm font-bold text-indigo-600 hover:text-indigo-800"><i class="fas fa-print mr-1"></i>Imprimer</button>
+                    </div>
+                </div>
+                <div id="ctab-content-info" class="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
+                    <div><p class="text-[10px] font-bold text-slate-400 uppercase">Code</p><p class="font-bold" id="cd-cli_cod">-</p></div>
+                    <div><p class="text-[10px] font-bold text-slate-400 uppercase">Raison Sociale</p><p class="font-black" id="cd-cli_raso">-</p></div>
+                    <div><p class="text-[10px] font-bold text-slate-400 uppercase">ICE</p><p id="cd-cli_ice">-</p></div>
+                    <div><p class="text-[10px] font-bold text-slate-400 uppercase">IF</p><p id="cd-cli_if">-</p></div>
+                    <div><p class="text-[10px] font-bold text-slate-400 uppercase">RC</p><p id="cd-cli_rc">-</p></div>
+                    <div><p class="text-[10px] font-bold text-slate-400 uppercase">Patente</p><p id="cd-cli_patente">-</p></div>
+                    <div><p class="text-[10px] font-bold text-slate-400 uppercase">Email</p><p id="cd-cli_email">-</p></div>
+                    <div><p class="text-[10px] font-bold text-slate-400 uppercase">Téléphone</p><p id="cd-cli_tel">-</p></div>
+                    <div><p class="text-[10px] font-bold text-slate-400 uppercase">Ville</p><p id="cd-cli_vil">-</p></div>
+                    <div><p class="text-[10px] font-bold text-slate-400 uppercase">Adresse</p><p id="cd-cli_adr">-</p></div>
+                    <div><p class="text-[10px] font-bold text-slate-400 uppercase">Mode de règlement</p><p id="cd-cli_mode_reg">-</p></div>
+                    <div><p class="text-[10px] font-bold text-slate-400 uppercase">Banque</p><p id="cd-cli_banque">-</p></div>
+                    <div><p class="text-[10px] font-bold text-slate-400 uppercase">RIB</p><p class="font-mono" id="cd-cli_rib">-</p></div>
+                    <div><p class="text-[10px] font-bold text-slate-400 uppercase">État</p><p id="cd-cli_actif">-</p></div>
+                    <div class="md:col-span-2"><p class="text-[10px] font-bold text-slate-400 uppercase">Notes</p><p id="cd-cli_notes" class="text-slate-600 italic">-</p></div>
+                    <div class="md:col-span-2 border-t pt-4 mt-2">
+                        <p class="text-[10px] font-bold text-slate-400 uppercase">Abonnement</p>
+                        <p id="cd-cli_abo_cadence" class="font-bold">-</p>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase mt-2">Montant Abonnement</p>
+                        <p id="cd-cli_abo_montant" class="font-bold">-</p>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase mt-2">Prochaine échéance</p>
+                        <p id="cd-cli_abo_next" class="font-bold">-</p>
+                    </div>
+                </div>
+                <div id="ctab-content-factures" class="hidden">
+                    <table class="w-full text-left">
+                        <thead class="text-[10px] font-bold uppercase text-slate-400">
+                            <tr><th class="p-2">N°</th><th class="p-2">Date</th><th class="p-2 text-right">Montant HT</th><th class="p-2 text-right">TTC</th><th class="p-2">État</th></tr>
+                        </thead>
+                        <tbody id="cd-factures-body"></tbody>
+                    </table>
+                </div>
+                <div id="ctab-content-reglements" class="hidden">
+                    <table class="w-full text-left">
+                        <thead class="text-[10px] font-bold uppercase text-slate-400">
+                            <tr><th class="p-2">ID</th><th class="p-2">Date</th><th class="p-2 text-right">Montant</th><th class="p-2">Mode</th><th class="p-2">Réf</th></tr>
+                        </thead>
+                        <tbody id="cd-reglements-body"></tbody>
+                    </table>
+                </div>
+                <div id="ctab-content-situation" class="hidden space-y-6">
+                    <div class="grid grid-cols-3 gap-4" id="cd-situation-cards"></div>
+                    <div>
+                        <p class="text-xs font-black uppercase text-slate-400 mb-2">Factures</p>
+                        <table class="w-full text-left">
+                            <thead class="text-[10px] font-bold uppercase text-slate-400">
+                                <tr><th class="p-2">N°</th><th class="p-2">Date</th><th class="p-2 text-right">HT</th><th class="p-2 text-right">TTC</th><th class="p-2 text-right">Réglé</th><th class="p-2 text-right">Reste</th><th class="p-2">État</th></tr>
+                            </thead>
+                            <tbody id="cd-situation-factures"></tbody>
+                        </table>
+                    </div>
+                    <div>
+                        <p class="text-xs font-black uppercase text-slate-400 mb-2">Règlements</p>
+                        <table class="w-full text-left">
+                            <thead class="text-[10px] font-bold uppercase text-slate-400">
+                                <tr><th class="p-2">ID</th><th class="p-2">Date</th><th class="p-2 text-right">Montant</th><th class="p-2">Mode</th><th class="p-2">Réf</th></tr>
+                            </thead>
+                            <tbody id="cd-situation-reglements"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="form-article" class="hidden max-w-2xl mx-auto bg-white rounded-[2.5rem] shadow-xl border overflow-hidden">
+            <div class="p-8 border-b bg-slate-50/50 flex justify-between items-center">
+                <h2 class="text-xl font-black" id="form-article-title">Nouvel Article</h2>
+                <button onclick="closeForm()" class="text-slate-400"><i class="fas fa-times text-xl"></i></button>
+            </div>
+            <form id="article-form" class="p-8 space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="space-y-1"><label for="art_cod" class="text-xs font-bold text-slate-500">Code</label><input type="text" id="art_cod" required class="w-full p-3 bg-slate-50 border rounded-xl font-bold"></div>
+                    <div class="md:col-span-2 space-y-1"><label for="art_lib" class="text-xs font-bold text-slate-500">Libellé</label><input type="text" id="art_lib" required class="w-full p-3 bg-slate-50 border rounded-xl font-bold"></div>
+                </div>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div class="space-y-1"><label class="text-xs font-bold text-slate-500">Famille</label><input type="text" id="art_faar" class="w-full p-3 bg-slate-50 border rounded-xl text-sm"></div>
+                    <div class="space-y-1"><label class="text-xs font-bold text-slate-500">Prix Revient</label><input type="number" id="art_prveT" step="0.01" class="w-full p-3 bg-slate-50 border rounded-xl text-sm"></div>
+                    <div class="space-y-1"><label class="text-xs font-bold text-slate-500">Prix Vente</label><input type="number" id="art_pracT" step="0.01" class="w-full p-3 bg-slate-50 border rounded-xl text-sm"></div>
+                    <div class="space-y-1"><label class="text-xs font-bold text-slate-500">Stock</label><input type="number" id="art_stk" step="0.01" class="w-full p-3 bg-slate-50 border rounded-xl text-sm"></div>
+                </div>
+                <div class="pt-6 border-t flex gap-4">
+                    <button type="submit" class="bg-indigo-600 text-white px-8 py-4 rounded-2xl font-black">Enregistrer</button>
+                    <button type="button" onclick="closeForm()" class="bg-slate-100 text-slate-500 px-8 py-4 rounded-2xl font-bold">Annuler</button>
+                </div>
+            </form>
+        </div>
+
+        <div id="form-reglement" class="hidden max-w-2xl mx-auto bg-white rounded-[2.5rem] shadow-xl border overflow-hidden">
+            <div class="p-8 border-b bg-slate-50/50 flex justify-between items-center">
+                <h2 class="text-xl font-black" id="form-reglement-title">Nouveau Règlement</h2>
+                <button onclick="closeForm()" class="text-slate-400"><i class="fas fa-times text-xl"></i></button>
+            </div>
+            <form id="reglement-form" class="p-8 space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div><label for="reg_cli_cod" class="text-xs font-bold text-slate-500">Client</label><select id="reg_cli_cod" required class="w-full p-3 bg-slate-50 border rounded-xl text-sm font-bold"></select></div>
+                    <div><label for="reg_dat" class="text-xs font-bold text-slate-500">Date</label><input type="date" id="reg_dat" class="w-full p-3 bg-slate-50 border rounded-xl text-sm"></div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div><label for="reg_mt" class="text-xs font-bold text-slate-500">Montant</label><input type="number" id="reg_mt" step="0.01" required class="w-full p-3 bg-slate-50 border rounded-xl text-sm font-bold"></div>
+                    <div><label for="reg_mode" class="text-xs font-bold text-slate-500">Mode</label><select id="reg_mode" class="w-full p-3 bg-slate-50 border rounded-xl text-sm">
+                        <option value="VIREMENT">Virement</option><option value="CHEQUE">Chèque</option><option value="ESPECES">Espèces</option>
+                    </select></div>
+                    <div><label class="text-xs font-bold text-slate-500">Référence</label><input type="text" id="reg_ref" placeholder="N° chèque" class="w-full p-3 bg-slate-50 border rounded-xl text-sm"></div>
+                </div>
+                <div class="border-t pt-4">
+                    <p class="text-xs font-bold text-slate-500 mb-2">Factures concernées <span class="text-slate-400 font-normal">(optionnel)</span></p>
+                    <select id="reg_fac_num" class="w-full p-3 bg-slate-50 border rounded-xl text-sm font-bold">
+                        <option value="">-- Aucune facture liée --</option>
+                    </select>
+                    <p class="text-[10px] text-slate-400 mt-1">Sélectionnez une facture à solder avec ce règlement.</p>
+                </div>
+                <div class="pt-6 border-t flex gap-4">
+                    <button type="submit" class="bg-indigo-600 text-white px-8 py-4 rounded-2xl font-black">Enregistrer</button>
+                    <button type="button" onclick="closeForm()" class="bg-slate-100 text-slate-500 px-8 py-4 rounded-2xl font-bold">Annuler</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- ABO MODAL -->
+        <div id="modal-abo" class="fixed inset-0 modal-overlay hidden flex items-center justify-center z-[100] p-4">
+            <div class="bg-white rounded-[2rem] w-full max-w-lg p-8 shadow-2xl">
+                <div class="flex justify-between items-start mb-6">
+                    <div><h3 class="text-xl font-black">Paramètres Abonnement</h3><p id="abo-client-name" class="text-indigo-600 text-sm font-bold"></p></div>
+                    <button onclick="closeModal('modal-abo')" class="text-slate-400"><i class="fas fa-times text-xl"></i></button>
+                </div>
+                <input type="hidden" id="abo_cli_cod">
+                <div class="space-y-4">
+                    <div><label for="abo_cadence" class="text-xs font-bold text-slate-500">Cadence</label>
+                        <select id="abo_cadence" class="w-full p-3 bg-slate-50 border rounded-xl text-sm font-bold">
+                            <option value="AUCUNE">Aucun</option><option value="MENSUEL">Mensuel</option><option value="TRIMESTRIEL">Trimestriel</option><option value="ANNUEL">Annuel</option>
+                        </select></div>
+                    <div><label class="text-xs font-bold text-slate-500">Montant (DH)</label>
+                        <input type="number" id="abo_montant" step="0.01" class="w-full p-3 bg-slate-50 border rounded-xl text-sm font-bold"></div>
+                    <div><label class="text-xs font-bold text-slate-500">Prochaine échéance</label>
+                        <input type="date" id="abo_next" class="w-full p-3 bg-slate-50 border rounded-xl text-sm"></div>
+                </div>
+                <div class="pt-6 flex gap-4">
+                    <button onclick="saveAbonnement()" class="bg-indigo-600 text-white px-8 py-4 rounded-2xl font-black shadow-xl">Enregistrer</button>
+                    <button onclick="closeModal('modal-abo')" class="bg-slate-100 text-slate-500 px-8 py-4 rounded-2xl font-bold">Annuler</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- FACTURE MODAL -->
+        <div id="modal-fac" class="fixed inset-0 modal-overlay hidden flex items-center justify-center z-[100] p-4">
+            <div class="bg-white rounded-[2rem] w-full max-w-4xl p-8 shadow-2xl max-h-[90vh] overflow-y-auto">
+                <div class="flex justify-between items-start mb-6">
+                    <div><h3 class="text-xl font-black" id="fac-modal-title">Nouvelle Facture</h3><p class="text-indigo-600 text-sm font-bold" id="fac-modal-sub"></p></div>
+                    <button onclick="closeFac()" class="text-slate-400"><i class="fas fa-times text-xl"></i></button>
+                </div>
+                <input type="hidden" id="fac_num_edit">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                    <div class="md:col-span-2"><label for="fac_cli_cod" class="text-xs font-bold text-slate-500">Client</label><select id="fac_cli_cod" class="w-full p-3 bg-slate-50 border rounded-xl text-sm font-bold"></select></div>
+                    <div><label for="fac_dat" class="text-xs font-bold text-slate-500">Date</label><input type="date" id="fac_dat" class="w-full p-3 bg-slate-50 border rounded-xl text-sm"></div>
+                    <div><label for="fac_echeance" class="text-xs font-bold text-slate-500">Échéance</label>
+                        <select id="fac_echeance" class="w-full p-3 bg-slate-50 border rounded-xl text-sm font-bold">
+                            <option value="Comptant">Comptant</option>
+                            <option value="30 jours" selected>30 jours</option>
+                            <option value="60 jours">60 jours</option>
+                            <option value="90 jours">90 jours</option>
+                            <option value="120 jours">120 jours</option>
+                        </select></div>
+                </div>
+                <div class="mb-6">
+                    <div class="flex justify-between items-center mb-2">
+                        <p class="text-xs font-black uppercase text-slate-400">Lignes</p>
+                        <button onclick="addLigne('fac')" class="text-indigo-600 text-sm font-bold"><i class="fas fa-plus mr-1"></i>Ajouter</button>
+                    </div>
+                    <table class="w-full text-left">
+                        <thead class="text-[10px] font-bold uppercase text-slate-400">
+                            <tr><th class="p-2">Code</th><th class="p-2">Libellé</th><th class="p-2 text-right">Qté</th><th class="p-2 text-right">P.U.</th><th class="p-2 text-right w-20">Remise %</th><th class="p-2 text-right">Total</th><th class="p-2"></th></tr>
+                        </thead>
+                        <tbody id="fac-lignes-body"></tbody>
+                    </table>
+                </div>
+                <div class="flex justify-between items-center border-t pt-4">
+                    <div>
+                        <div class="text-lg font-black">Total HT: <span id="fac-total-ht">0.00</span> DH</div>
+                        <div class="text-sm font-bold text-slate-400 mt-1">
+                            TVA (<select id="fac_tva_rate" onchange="calcTotal('fac')" class="bg-transparent border-b border-slate-300 text-sm font-bold outline-none">
+                                <option value="20">20%</option><option value="14">14%</option><option value="10">10%</option><option value="7">7%</option><option value="0">0%</option>
+                            </select>): <span id="fac-total-tva">0.00</span> DH
+                        </div>
+                        <div class="text-xl font-black text-indigo-600">Total TTC: <span id="fac-total-ttc">0.00</span> DH</div>
+                        <div id="fac-reste-display" class="hidden text-sm font-bold text-red-600 mt-1"><span>Reste à payer: <span id="fac-reste-value">0.00</span> DH</span></div>
+                    </div>
+                    <div class="flex gap-3">
+                        <button onclick="submitFacture()" class="bg-indigo-600 text-white px-8 py-3 rounded-2xl font-black">Enregistrer</button>
+                        <button onclick="submitFacture(true)" class="bg-emerald-600 text-white px-8 py-3 rounded-2xl font-bold"><i class="fas fa-check-circle mr-1"></i>Valider</button>
+                        <button onclick="closeFac()" class="bg-slate-100 text-slate-500 px-6 py-3 rounded-2xl font-bold">Annuler</button>
+                    </div>
+                </div>
+                <div class="mt-4 pt-4 border-t">
+                    <label for="fac_notes" class="text-xs font-bold text-slate-500">Notes / Conditions</label>
+                    <textarea id="fac_notes" rows="2" class="w-full p-3 bg-slate-50 border rounded-xl text-sm mt-1" placeholder="Conditions de paiement, remarques..."></textarea>
+                </div>
+                <div class="mt-4 pt-4 border-t">
+                    <div class="flex items-center gap-3 mb-3">
+                        <input type="checkbox" id="fac-reg-toggle" onchange="toggleFacReg()" class="w-4 h-4 accent-indigo-600 cursor-pointer">
+                        <label for="fac-reg-toggle" class="text-xs font-black uppercase text-slate-500 cursor-pointer select-none">Enregistrer un règlement</label>
+                    </div>
+                    <div id="fac-reg-fields" class="hidden grid grid-cols-1 md:grid-cols-4 gap-3">
+                        <div><label class="text-xs font-bold text-slate-500">Mode</label>
+                            <select id="fac-reg-mode" class="w-full p-3 bg-slate-50 border rounded-xl text-sm font-bold">
+                                <option value="VIREMENT">Virement</option><option value="CHEQUE">Chèque</option><option value="ESPECES">Espèces</option>
+                            </select></div>
+                        <div><label class="text-xs font-bold text-slate-500">Montant (DH)</label>
+                            <input type="number" id="fac-reg-mt" step="0.01" class="w-full p-3 bg-slate-50 border rounded-xl text-sm font-bold"></div>
+                        <div><label class="text-xs font-bold text-slate-500">Date</label>
+                            <input type="date" id="fac-reg-dat" class="w-full p-3 bg-slate-50 border rounded-xl text-sm"></div>
+                        <div><label class="text-xs font-bold text-slate-500">Référence</label>
+                            <input type="text" id="fac-reg-ref" class="w-full p-3 bg-slate-50 border rounded-xl text-sm" placeholder="N° chèque / virement..."></div>
+                    </div>
+                    <div id="fac-reg-list" class="hidden mt-3"></div>
+                </div>
+            </div>
+        </div>
+        <div id="modal-devis" class="fixed inset-0 modal-overlay hidden flex items-center justify-center z-[100] p-4">
+            <div class="bg-white rounded-[2rem] w-full max-w-4xl p-8 shadow-2xl max-h-[90vh] overflow-y-auto">
+                <div class="flex justify-between items-start mb-6">
+                    <div><h3 class="text-xl font-black" id="dev-modal-title">Nouveau Devis</h3><p class="text-indigo-600 text-sm font-bold" id="dev-modal-sub"></p></div>
+                    <button onclick="closeDev()" class="text-slate-400"><i class="fas fa-times text-xl"></i></button>
+                </div>
+                <input type="hidden" id="dev_num_edit">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                    <div class="md:col-span-2"><label for="dev_cli_cod" class="text-xs font-bold text-slate-500">Client</label><select id="dev_cli_cod" class="w-full p-3 bg-slate-50 border rounded-xl text-sm font-bold"></select></div>
+                    <div><label for="dev_dat" class="text-xs font-bold text-slate-500">Date</label><input type="date" id="dev_dat" class="w-full p-3 bg-slate-50 border rounded-xl text-sm"></div>
+                    <div><label for="dev_echeance" class="text-xs font-bold text-slate-500">Échéance</label>
+                        <select id="dev_echeance" class="w-full p-3 bg-slate-50 border rounded-xl text-sm font-bold">
+                            <option value="Comptant">Comptant</option>
+                            <option value="30 jours" selected>30 jours</option>
+                            <option value="60 jours">60 jours</option>
+                            <option value="90 jours">90 jours</option>
+                            <option value="120 jours">120 jours</option>
+                        </select></div>
+                </div>
+                <div class="mb-6">
+                    <div class="flex justify-between items-center mb-2">
+                        <p class="text-xs font-black uppercase text-slate-400">Lignes</p>
+                        <button onclick="addLigne('dev')" class="text-indigo-600 text-sm font-bold"><i class="fas fa-plus mr-1"></i>Ajouter</button>
+                    </div>
+                    <table class="w-full text-left">
+                        <thead class="text-[10px] font-bold uppercase text-slate-400">
+                            <tr><th class="p-2">Code</th><th class="p-2">Libellé</th><th class="p-2 text-right">Qté</th><th class="p-2 text-right">P.U.</th><th class="p-2 text-right w-20">Remise %</th><th class="p-2 text-right">Total</th><th class="p-2"></th></tr>
+                        </thead>
+                        <tbody id="dev-lignes-body"></tbody>
+                    </table>
+                </div>
+                <div class="flex justify-between items-center border-t pt-4">
+                    <div>
+                        <div class="text-lg font-black">Total HT: <span id="dev-total-ht">0.00</span> DH</div>
+                        <div class="text-sm font-bold text-slate-400 mt-1">
+                            TVA (<select id="dev_tva_rate" onchange="calcTotal('dev')" class="bg-transparent border-b border-slate-300 text-sm font-bold outline-none">
+                                <option value="20">20%</option><option value="14">14%</option><option value="10">10%</option><option value="7">7%</option><option value="0">0%</option>
+                            </select>): <span id="dev-total-tva">0.00</span> DH
+                        </div>
+                        <div class="text-xl font-black text-indigo-600">Total TTC: <span id="dev-total-ttc">0.00</span> DH</div>
+                    </div>
+                    <div class="flex gap-3">
+                        <button onclick="submitDevis()" class="bg-indigo-600 text-white px-8 py-3 rounded-2xl font-black">Enregistrer</button>
+                        <button onclick="submitDevis(true)" class="bg-emerald-600 text-white px-8 py-3 rounded-2xl font-bold"><i class="fas fa-check-circle mr-1"></i>Valider</button>
+                        <button onclick="closeDev()" class="bg-slate-100 text-slate-500 px-6 py-3 rounded-2xl font-bold">Annuler</button>
+                    </div>
+                </div>
+                <div class="mt-4 pt-4 border-t">
+                    <label for="dev_notes" class="text-xs font-bold text-slate-500">Notes / Conditions</label>
+                    <textarea id="dev_notes" rows="2" class="w-full p-3 bg-slate-50 border rounded-xl text-sm mt-1" placeholder="Conditions du devis, validité, remarques..."></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- IMPRESSION MODAL -->
+        <div id="modal-print" class="fixed inset-0 modal-overlay hidden z-[100]">
+            <div class="bg-white w-full h-full overflow-y-auto p-8 lg:p-16 no-print">
+                <div class="max-w-4xl mx-auto">
+                    <button onclick="closeModal('modal-print')" class="mb-4 bg-slate-100 px-6 py-3 rounded-2xl font-bold text-sm"><i class="fas fa-arrow-left mr-2"></i>Retour</button>
+                    <button onclick="window.print()" class="mb-4 bg-indigo-600 text-white px-6 py-3 rounded-2xl font-bold text-sm ml-2"><i class="fas fa-print mr-2"></i>Imprimer</button>
+                    <div id="print-content" class="bg-white p-8 rounded-2xl shadow-sm border"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CUSTOM CONFIRM MODAL -->
+        <div id="modal-confirm" class="fixed inset-0 modal-overlay hidden flex items-center justify-center z-[300] p-4">
+            <div class="bg-white rounded-[2rem] w-full max-w-sm p-8 shadow-2xl text-center">
+                <div class="w-14 h-14 bg-red-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-exclamation-triangle text-red-500 text-xl"></i>
+                </div>
+                <h3 class="text-lg font-black mb-2" id="confirm-title">Confirmer</h3>
+                <p class="text-slate-500 text-sm mb-6" id="confirm-msg">Êtes-vous sûr ?</p>
+                <div class="flex gap-3 justify-center">
+                    <button id="confirm-yes" class="bg-red-600 text-white px-8 py-3 rounded-2xl font-bold text-sm shadow-lg">Confirmer</button>
+                    <button onclick="closeModal('modal-confirm')" class="bg-slate-100 text-slate-500 px-8 py-3 rounded-2xl font-bold text-sm">Annuler</button>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+</div>
+
+<div id="loading-bar" class="hidden fixed top-0 left-0 w-full h-1 bg-indigo-500/20 z-[400]">
+    <div class="h-full bg-indigo-600 animate-pulse" style="width:30%"></div>
+</div>
+
+<div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-8 py-4 rounded-2xl shadow-2xl flex items-center gap-4 opacity-0 pointer-events-none transition-all duration-300 z-[200]">
+    <i class="fas fa-check-circle text-emerald-400"></i><span id="toast-msg" class="font-bold text-sm">Fait</span>
+</div>
+
+<script>
+let TOKEN = localStorage.getItem('fatigest_token') || '';
+let allClients=[], allFactures=[], allArticles=[], allReglements=[], allAbonnements=[], allDevis=[];
+let currentView='dashboard', loading=false;
+let editingRegId=null, editingFacNum=null;
+let chartCa=null, chartTop=null, chartEvol=null, chartReg=null;
+let paginationState = { clients: 1, articles: 1, factures: 1, reglements: 1, abonnements: 1, devis: 1 };
+let batchState = { view: null, ids: new Set() };
+
+// ─── AUTH ───
+if (TOKEN) document.getElementById('login-screen').classList.add('hidden');
+if (TOKEN) document.getElementById('app').classList.remove('hidden');
+
+document.getElementById('login-form').onsubmit = async (e) => {
+    e.preventDefault();
+    const err = document.getElementById('login-error');
+    err.classList.add('hidden');
+    const btn = e.target.querySelector('button[type="submit"]');
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Connexion...';
+    btn.disabled = true;
+    try {
+        const r = await fetch('/api/login', {method:'POST', headers:{'Content-Type':'application/json'},
+            body: JSON.stringify({username: document.getElementById('login-user').value, password: document.getElementById('login-pass').value})});
+        if (!r.ok) { const d = await r.json(); throw new Error(d.detail || 'Erreur'); }
+        const data = await r.json();
+        TOKEN = data.access_token;
+        localStorage.setItem('fatigest_token', TOKEN);
+        document.getElementById('login-screen').classList.add('hidden');
+        document.getElementById('app').classList.remove('hidden');
+        switchView('dashboard');
+        initArtList();
+    } catch(ex) {
+        err.innerText = ex.message;
+        err.classList.remove('hidden');
+    } finally {
+        btn.innerHTML = '<i class="fas fa-right-to-bracket mr-2"></i>Connexion';
+        btn.disabled = false;
+    }
+};
+
+function logout() {
+    localStorage.removeItem('fatigest_token');
+    TOKEN = '';
+    document.getElementById('app').classList.add('hidden');
+    document.getElementById('login-screen').classList.remove('hidden');
+}
+
+function getHeaders() {
+    return {'Content-Type':'application/json', 'Authorization': 'Bearer ' + TOKEN};
+}
+
+function showToast(m,ok=true){
+    const t=document.getElementById('toast');
+    document.getElementById('toast-msg').innerText=m;
+    t.querySelector('i').className=ok?'fas fa-check-circle text-emerald-400':'fas fa-exclamation-circle text-red-400';
+    t.classList.add('opacity-100','-translate-y-4');
+    setTimeout(()=>t.classList.remove('opacity-100','-translate-y-4'),3000);
+}
+async function api(url,opts={}) {
+    try{
+        opts.headers = {...getHeaders(), ...(opts.headers||{})};
+        const r=await fetch(url, opts);
+        if (r.status===401) {
+            if (TOKEN) {
+                showToast('Session expirée, reconnectez-vous', false);
+                logout();
+            } else {
+                // No token -> redirect to login silently
+                document.getElementById('app').classList.add('hidden');
+                document.getElementById('login-screen').classList.remove('hidden');
+            }
+            return;
+        }
+        if(!r.ok){const e=await r.json().catch(()=>({detail:r.statusText}));throw new Error(e.detail||r.statusText);}
+        return r.json();
+    }catch(e){showToast('Erreur: '+e.message,false);throw e;}
+}
+function esc(s) { return s?String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'):''; }
+function setLoading(v){loading=v;document.getElementById('loading-bar')?.classList.toggle('hidden',!v);}
+
+// ─── FORM HELPERS ───
+function validateField(el) {
+    el.classList.remove('field-valid','field-invalid');
+    const err = el.parentElement.querySelector('.form-error-msg');
+    if (err) err.style.display = 'none';
+    if (el.hasAttribute('required') && !el.value.trim()) {
+        el.classList.add('field-invalid');
+        if (err) { err.innerText = 'Ce champ est requis'; err.style.display = 'block'; }
+        return false;
+    }
+    if (el.type === 'email' && el.value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(el.value)) {
+        el.classList.add('field-invalid');
+        if (err) { err.innerText = 'Email invalide'; err.style.display = 'block'; }
+        return false;
+    }
+    el.classList.add('field-valid');
+    return true;
+}
+// Searchable select: turns a <select> into type-to-filter
+function makeSearchable(selId) {
+    const sel = document.getElementById(selId);
+    if (!sel || sel.dataset.searchable) return;
+    sel.dataset.searchable = '1';
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.placeholder = 'Chercher un client...';
+    input.className = 'w-full p-3 bg-slate-100 border rounded-xl text-sm font-bold mb-1';
+    input.autocomplete = 'off';
+    sel.parentNode.insertBefore(input, sel);
+    sel.size = 4;
+    input.oninput = function() {
+        const q = this.value.toLowerCase();
+        let visibleCount = 0, lastVisible = null;
+        Array.from(sel.options).forEach(o => {
+            const match = !q || o.text.toLowerCase().includes(q);
+            o.style.display = match ? '' : 'none';
+            if (match && o.value) { visibleCount++; lastVisible = o; }
+        });
+        if (visibleCount === 0) { sel.value = ''; sel.size = 1; }
+        else if (visibleCount === 1 && lastVisible) { sel.value = lastVisible.value; sel.size = 1; }
+        else sel.size = Math.min(visibleCount + 1, 6);
+    };
+    // Sync input <-> select
+    sel.addEventListener('change', () => { input.value = sel.options[sel.selectedIndex]?.text || ''; });
+    input.addEventListener('blur', () => { setTimeout(() => { sel.size = 1; }, 300); });
+    input.addEventListener('focus', () => { input.oninput(); });
+}
+function validateForm(formId) {
+    let ok = true;
+    document.querySelectorAll(`#${formId} [required]`).forEach(el => { if (!validateField(el)) ok = false; });
+    document.querySelectorAll(`#${formId} input[type="email"]`).forEach(el => { if (el.value && !validateField(el)) ok = false; });
+    return ok;
+}
+function setBtnLoading(btn, loading) {
+    if (loading) {
+        btn._origHtml = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Enregistrement...';
+        btn.classList.add('btn-loading');
+        btn.disabled = true;
+    } else {
+        btn.innerHTML = btn._origHtml || btn.innerHTML;
+        btn.classList.remove('btn-loading');
+        btn.disabled = false;
+    }
+}
+function addErrorMsg(el) {
+    const p = el.parentElement;
+    if (!p.querySelector('.form-error-msg')) {
+        const msg = document.createElement('p');
+        msg.className = 'form-error-msg';
+        p.appendChild(msg);
+    }
+}
+// Auto-remove validation styling on input
+document.addEventListener('input', e => {
+    if (e.target.matches('.field-invalid')) {
+        e.target.classList.remove('field-invalid');
+        const err = e.target.parentElement.querySelector('.form-error-msg');
+        if (err) err.style.display = 'none';
+    }
+});
+// Add error message containers to required fields and emails
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('[required], input[type="email"]').forEach(addErrorMsg);
+});
+// Add required indicators to labels
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('label').forEach(l => {
+        const id = l.getAttribute('for');
+        if (id) {
+            const input = document.getElementById(id);
+            if (input && input.hasAttribute('required')) l.classList.add('field-required');
+        }
+    });
+});
+// ICE auto-format: XX-XXXXXXX-XXXXXXX-XX
+function formatICE(val) {
+    const d = val.replace(/[^0-9]/g,'').slice(0,15);
+    if (d.length > 2) return d.slice(0,2) + '-' + (d.length > 9 ? d.slice(2,9) + '-' + (d.length > 16 ? d.slice(9,16) + '-' + d.slice(16) : d.slice(9)) : d.slice(2));
+    return d;
+}
+// Phone format: 0X-XX-XX-XX-XX
+function formatPhone(val) {
+    const d = val.replace(/[^0-9]/g,'').slice(0,10);
+    if (d.length > 2) return d.slice(0,2) + '-' + (d.length > 4 ? d.slice(2,4) + '-' + (d.length > 6 ? d.slice(4,6) + '-' + (d.length > 8 ? d.slice(6,8) + '-' + d.slice(8) : d.slice(6)) : d.slice(4)) : d.slice(2));
+    return d;
+}
+// Thousand separator
+function fmtNum(n) { return Number(n).toLocaleString('fr-FR', {minimumFractionDigits:2, maximumFractionDigits:2}); }
+
+// Unsaved changes tracking
+let formDirty = false;
+function markClean() { formDirty = false; }
+function markDirty() { formDirty = true; }
+document.addEventListener('change', e => {
+    if (e.target.closest('#client-form, #article-form, #reglement-form, #modal-fac, #modal-abo')) markDirty();
+});
+window.addEventListener('beforeunload', e => {
+    if (formDirty) { e.preventDefault(); e.returnValue = ''; }
+});
+// Escape to close modals/forms
+document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+        const modals = ['modal-fac','modal-abo','modal-print','modal-confirm'];
+        for (const m of modals) {
+            const el = document.getElementById(m);
+            if (el && !el.classList.contains('hidden')) { closeModal(m); return; }
+        }
+        const forms = ['form-container','form-article','form-reglement'];
+        for (const f of forms) {
+            const el = document.getElementById(f);
+            if (el && !el.classList.contains('hidden')) { closeForm(); return; }
+        }
+    }
+});
+
+async function loadStats() {
+    const s=await api('/api/stats');
+    document.getElementById('stat-clients').innerText=s.clients;
+    document.getElementById('stat-articles').innerText=s.articles;
+    document.getElementById('stat-abonnements').innerText=s.abonnements||0;
+    document.getElementById('stat-brouillons').innerText=s.brouillons;
+    document.getElementById('stat-ca').innerHTML=(s.ca||0).toLocaleString()+' DH';
+    document.getElementById('stat-reglements').innerHTML=(s.reglements||0).toLocaleString()+' DH';
+}
+
+// ─── FILTERS ───
+let filters = { clients:{}, articles:{}, factures:{}, reglements:{}, abonnements:{}, devis:{} };
+let filterTimers = {};
+
+function toggleFilters(view) {
+    const el = document.getElementById('filters-'+view);
+    const btn = document.getElementById('filter-btn-'+view);
+    if (!el) return;
+    el.classList.toggle('hidden');
+    btn.classList.toggle('bg-indigo-100', !el.classList.contains('hidden'));
+}
+
+function getFilterParams(view) {
+    const p = {};
+    document.querySelectorAll('#filters-'+view+' select, #filters-'+view+' input').forEach(el => {
+        const key = el.id.replace('filter-'+view+'-','');
+        const val = el.value.trim();
+        if (val) p[key] = val;
+    });
+    return p;
+}
+
+function applyFilters(view) {
+    paginationState[view] = 1;
+    loadData();
+}
+
+function debounceFilters(view) {
+    clearTimeout(filterTimers[view]);
+    filterTimers[view] = setTimeout(() => applyFilters(view), 400);
+}
+
+function resetFilters(view) {
+    document.querySelectorAll('#filters-'+view+' select').forEach(s => s.value = '');
+    document.querySelectorAll('#filters-'+view+' input').forEach(i => i.value = '');
+    applyFilters(view);
+}
+
+// ═══════ BATCH SELECTION ═══════
+function batchToggle(view, id, checked) {
+    if (batchState.view !== view) { batchState.view = view; batchState.ids.clear(); }
+    if (checked) batchState.ids.add(id);
+    else batchState.ids.delete(id);
+    updateBatchBar();
+}
+function batchToggleAll(view, checked) {
+    batchState.view = view;
+    batchState.ids.clear();
+    if (checked) {
+        const data = getViewData(view);
+        data.forEach(item => batchState.ids.add(getViewId(view, item)));
+    }
+    // Update all checkboxes in the view
+    document.querySelectorAll('#list-'+view+' .batch-check').forEach(cb => cb.checked = checked);
+    updateBatchBar();
+}
+function getViewData(view) {
+    if (view === 'clients') return allClients;
+    if (view === 'articles') return allArticles;
+    if (view === 'factures') return allFactures;
+    if (view === 'reglements') return allReglements;
+    if (view === 'abonnements') return allAbonnements;
+    if (view === 'devis') return allDevis;
+    return [];
+}
+function getViewId(view, item) {
+    if (view === 'clients') return item.cli_cod;
+    if (view === 'articles') return item.art_cod;
+    if (view === 'factures') return item.fac_num;
+    if (view === 'reglements') return item.reg_id;
+    if (view === 'abonnements') return item.cli_cod;
+    if (view === 'devis') return item.dev_num;
+    return null;
+}
+function updateBatchBar() {
+    const bar = document.getElementById('batch-bar');
+    const count = batchState.ids.size;
+    if (count === 0) { bar.classList.add('hidden'); return; }
+    document.getElementById('batch-count').innerText = count;
+    bar.classList.remove('hidden');
+}
+function batchClear() {
+    batchState.ids.clear();
+    document.querySelectorAll('.batch-check').forEach(cb => cb.checked = false);
+    updateBatchBar();
+}
+async function batchDelete() {
+    const view = batchState.view;
+    if (!view || batchState.ids.size === 0) return;
+    const label = { clients:'clients', articles:'articles', factures:'factures', reglements:'règlements', abonnements:'abonnements', devis:'devis' }[view] || 'éléments';
+    if (!confirm(`Supprimer ${batchState.ids.size} ${label} ?`)) return;
+    const ids = Array.from(batchState.ids);
+    for (const id of ids) {
+        try {
+            const path = view === 'abonnements' ? `/api/abonnements/${id}` : `/api/${view}/${id}`;
+            await api(path, { method: 'DELETE' });
+        } catch(e) { /* continue */ }
+    }
+    batchClear();
+    showToast(`${ids.length} ${label} supprimé(s)`);
+    loadData();
+}
+
+const subtitles={
+    dashboard:'Vue d\'ensemble et indicateurs.', clients:'Gestion des fiches client.',
+    articles:'Catalogue des articles.', factures:'Facturation et suivi.',
+    reglements:'Encaissements et règlements.', abonnements:'Gestion des abonnements récurrents.',
+    devis:'Devis et propositions commerciales.',
+    rapports:'Analyse et états.', sauvegarde:'Sauvegarde et restauration.'
+};
+
+function switchView(v) {
+    currentView=v;
+    document.querySelectorAll('aside nav button').forEach(b=>{ b.classList.remove('bg-indigo-600','text-white'); b.classList.add('text-slate-400'); });
+    const btn=document.getElementById('btn-'+v);
+    if(btn){btn.classList.add('bg-indigo-600','text-white');btn.classList.remove('text-slate-400');}
+    document.querySelectorAll('[id^="list-"]').forEach(el=>el.classList.add('hidden'));
+    document.getElementById('list-'+v)?.classList.remove('hidden');
+    document.querySelectorAll('[id^="form-"]').forEach(el=>el.classList.add('hidden'));
+    document.getElementById('form-container').classList.add('hidden');
+    document.getElementById('modal-fac')?.classList.add('hidden');
+    document.getElementById('modal-devis')?.classList.add('hidden');
+    const titles={dashboard:'Tableau de Bord',clients:'Clients',articles:'Articles',factures:'Factures',devis:'Devis',reglements:'Règlements',abonnements:'Abonnements',rapports:'Rapports',sauvegarde:'Sauvegarde'};
+    document.getElementById('view-title').innerText=titles[v]||v;
+    document.getElementById('view-subtitle').innerText=subtitles[v]||'';
+    const hidesearch=['dashboard','rapports','sauvegarde'].includes(v);
+    document.getElementById('search').classList.toggle('hidden',hidesearch);
+    const newBtn=document.getElementById('btn-new');
+    const newLabel=document.getElementById('btn-new-label');
+    const newActions={clients:'Nouveau Client',articles:'Nouvel Article',factures:'Nouvelle Facture',devis:'Nouveau Devis',reglements:'Nouveau Règlement',abonnements:'Nouvel Abonnement',dashboard:'Nouveau Client'};
+    if(newLabel)newLabel.innerText=newActions[v]||'Nouveau';
+    if(newBtn)newBtn.classList.toggle('hidden',['rapports','sauvegarde'].includes(v));
+    loadData();
+    if(v==='dashboard') setTimeout(loadDashboard,100);
+    if(v==='sauvegarde') loadBackups();
+}
+
+async function loadData() {
+    setLoading(true);
+    try{
+        await loadStats();
+        const rawQ = document.getElementById('search').value;
+        const q = encodeURIComponent(rawQ);
+        const p = paginationState[currentView] || 1;
+        const f = getFilterParams(currentView);
+        const pp = rawQ ? 500 : 30;
+        function qs(obj) { return Object.entries(obj).map(([k,v])=>`&${k}=${encodeURIComponent(v)}`).join(''); }
+        if(currentView==='clients'){ const r=await api('/api/clients?q='+q+'&page='+p+'&per_page='+pp+qs(f)); allClients=clientFilter(r.items,rawQ); renderClients(); renderPagination('clients', {...r, items:allClients, total:allClients.length}); }
+        else if(currentView==='articles'){ const r=await api('/api/articles?q='+q+'&page='+p+'&per_page='+pp+qs(f)); allArticles=clientFilter(r.items,rawQ); renderArticles(); renderPagination('articles', {...r, items:allArticles, total:allArticles.length}); }
+        else if(currentView==='factures'){ const r=await api('/api/factures?q='+q+'&page='+p+'&per_page='+pp+qs(f)); allFactures=clientFilter(r.items,rawQ); renderFactures(); renderPagination('factures', {...r, items:allFactures, total:allFactures.length}); }
+        else if(currentView==='reglements'){ const r=await api('/api/reglements?q='+q+'&page='+p+'&per_page='+pp+qs(f)); allReglements=clientFilter(r.items,rawQ); renderReglements(); renderPagination('reglements', {...r, items:allReglements, total:allReglements.length}); }
+        else if(currentView==='abonnements'){ const r=await api('/api/abonnements?q='+q+'&page='+p+'&per_page='+pp+qs(f)); allAbonnements=clientFilter(r.items,rawQ); renderAbonnements(); renderPagination('abonnements', {...r, items:allAbonnements, total:allAbonnements.length}); }
+        else if(currentView==='devis'){ const r=await api('/api/devis?q='+q+'&page='+p+'&per_page='+pp+qs(f)); allDevis=clientFilter(r.items,rawQ); renderDevis(); renderPagination('devis', {...r, items:allDevis, total:allDevis.length}); }
+    }finally{setLoading(false);}
+}
+function clientFilter(items, query) {
+    if (!query) return items;
+    const q = query.toLowerCase();
+    return items.filter(item => {
+        for (const key in item) {
+            const val = item[key];
+            if (val !== null && val !== undefined) {
+                if (String(val).toLowerCase().includes(q)) return true;
+            }
+        }
+        return false;
+    });
+}
+
+function renderPagination(type, data) {
+    const container = document.getElementById(type+'-pagination');
+    const info = document.getElementById(type+'-pagination-info');
+    if (!container) return;
+    if (!data || data.pages <= 1) { container.innerHTML = ''; if(info)info.innerText = ''; return; }
+    if(info) info.innerText = `Page ${data.page}/${data.pages} (${data.total} résultat(s))`;
+    let html = '';
+    if (data.page > 1) html += `<button onclick="goPage('${type}',1)" class="px-3 py-2 rounded-xl bg-white border font-bold text-sm hover:bg-indigo-50"><i class="fas fa-angle-double-left"></i></button>`;
+    if (data.page > 1) html += `<button onclick="goPage('${type}',${data.page-1})" class="px-3 py-2 rounded-xl bg-white border font-bold text-sm hover:bg-indigo-50"><i class="fas fa-angle-left"></i></button>`;
+    for (let i=Math.max(1,data.page-2); i<=Math.min(data.pages,data.page+2); i++)
+        html += `<button onclick="goPage('${type}',${i})" class="px-4 py-2 rounded-xl font-bold text-sm ${i===data.page?'bg-indigo-600 text-white':'bg-white border hover:bg-indigo-50'}">${i}</button>`;
+    if (data.page < data.pages) html += `<button onclick="goPage('${type}',${data.page+1})" class="px-3 py-2 rounded-xl bg-white border font-bold text-sm hover:bg-indigo-50"><i class="fas fa-angle-right"></i></button>`;
+    if (data.page < data.pages) html += `<button onclick="goPage('${type}',${data.pages})" class="px-3 py-2 rounded-xl bg-white border font-bold text-sm hover:bg-indigo-50"><i class="fas fa-angle-double-right"></i></button>`;
+    container.innerHTML = html;
+}
+
+function goPage(type, page) {
+    paginationState[type] = page;
+    loadData();
+}
+
+function closeForm() {
+    if (formDirty && !confirm('Des modifications non enregistrées seront perdues. Continuer ?')) return;
+    document.querySelectorAll('[id^="form-"]').forEach(el=>el.classList.add('hidden'));
+    document.getElementById('form-container').classList.add('hidden');
+    document.getElementById('list-'+currentView)?.classList.remove('hidden');
+    markClean();
+}
+function closeModal(id){
+    if ((id === 'modal-fac' || id === 'modal-abo') && formDirty && !confirm('Des modifications non enregistrées seront perdues. Continuer ?')) return;
+    document.getElementById(id).classList.add('hidden');
+    markClean();
+}
+function newItem(type){
+    if(type==='clients') newClient();
+    else if(type==='articles') newArticle();
+    else if(type==='factures') openFacCreate();
+    else if(type==='devis') newDevis();
+    else if(type==='reglements') newReglement();
+    else if(type==='abonnements'){switchView('abonnements');setTimeout(()=>{const r=allAbonnements&&allAbonnements[0];if(r)openAbo(r.cli_cod,r.cli_raso);},200);}
+    else if(type==='dashboard') newClient();
+}
+
+// ─── CUSTOM CONFIRM ───
+let confirmCallback = null;
+function showConfirm(title, msg, cb) {
+    document.getElementById('confirm-title').innerText = title;
+    document.getElementById('confirm-msg').innerText = msg;
+    confirmCallback = cb;
+    document.getElementById('modal-confirm').classList.remove('hidden');
+}
+document.getElementById('confirm-yes').onclick = function() {
+    closeModal('modal-confirm');
+    if (confirmCallback) confirmCallback();
+    confirmCallback = null;
+};
+
+// ═══════ DASHBOARD ═══════
+async function loadDashboard() {
+    const d=await api('/api/stats/dashboard');
+    const ctx1=document.getElementById('chart-ca');
+    if(!ctx1)return;
+    if(chartCa)chartCa.destroy();
+    const mois=['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov','Déc'];
+    const labels=d.ca_mensuel.map(r=>mois[parseInt(r.m)-1]);
+    const data=d.ca_mensuel.map(r=>parseFloat(r.ca)||0);
+    chartCa=new Chart(ctx1,{type:'bar',data:{labels,datasets:[{label:'CA TTC',data,backgroundColor:'#6366f1'}]},options:{responsive:true,plugins:{legend:{display:false}}}});
+    if(chartTop)chartTop.destroy();
+    chartTop=new Chart(document.getElementById('chart-top'),{type:'bar',data:{labels:d.top_clients.map(r=>r.cli_raso?.substring(0,20)),datasets:[{label:'CA TTC',data:d.top_clients.map(r=>parseFloat(r.ca)||0),backgroundColor:'#10b981'}]},options:{indexAxis:'y',responsive:true,plugins:{legend:{display:false}}}});
+    if(chartEvol)chartEvol.destroy();
+    chartEvol=new Chart(document.getElementById('chart-evolution'),{type:'line',data:{labels:d.evolution.map(r=>r.periode),datasets:[{label:'CA',data:d.evolution.map(r=>parseFloat(r.ca)||0),borderColor:'#6366f1',fill:true,tension:0.3}]},options:{responsive:true,plugins:{legend:{display:false}}}});
+    if(chartReg)chartReg.destroy();
+    chartReg=new Chart(document.getElementById('chart-reg'),{type:'doughnut',data:{labels:d.reg_mode.map(r=>r.reg_mode),datasets:[{data:d.reg_mode.map(r=>parseFloat(r.total)||0),backgroundColor:['#6366f1','#f59e0b','#10b981']}]},options:{responsive:true}});
+}
+
+// ═══════ CLIENTS ═══════
+function renderClients() {
+    const el=document.getElementById('clients-grid');
+    if(!allClients.length){el.innerHTML='<div class="col-span-full text-center py-16 text-slate-400"><i class="fas fa-users text-5xl mb-4 opacity-30"></i><p class="font-bold text-lg">Aucun client</p><p class="text-sm">Ajoutez un client avec le bouton "Nouveau Client"</p></div>';return;}
+    el.innerHTML=allClients.map(cli=>`
+        <div class="bg-white p-6 rounded-[2rem] border shadow-sm hover:shadow-xl transition-all group ${cli.cli_actif?'':'grayscale opacity-60'}">
+            <div class="flex justify-between items-start mb-4">
+                <div class="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center text-indigo-600 font-black text-xs border">${esc((cli.cli_cod||'???').substring(0,3))}</div>
+                <div class="flex gap-1 opacity-0 group-hover:opacity-100">
+                    <button onclick="viewClient('${esc(cli.cli_cod)}')" class="p-2 text-slate-400 hover:text-indigo-600" title="Voir"><i class="fas fa-eye"></i></button>
+                    <button onclick="editClient('${esc(cli.cli_cod)}')" class="p-2 text-slate-400 hover:text-indigo-600"><i class="fas fa-pen"></i></button>
+                    <button onclick="confirmDelete('clients','${esc(cli.cli_cod)}')" class="p-2 text-slate-400 hover:text-red-500"><i class="fas fa-trash"></i></button>
+                </div>
+            </div>
+            <h3 class="font-black text-slate-900 line-clamp-1">${esc(cli.cli_raso)}</h3>
+            <p class="text-[10px] font-mono text-slate-400 mb-4">${esc(cli.cli_cod)} | ICE: ${esc(cli.cli_ice||'---')}</p>
+            <div class="grid grid-cols-2 gap-2 mb-6">
+                <div class="bg-slate-50 p-3 rounded-xl"><p class="text-[9px] font-bold text-slate-400 uppercase">Mode</p><p class="text-xs font-black">${esc(cli.cli_mode_reg||'-')}</p></div>
+                <div class="bg-slate-50 p-3 rounded-xl"><p class="text-[9px] font-bold text-slate-400 uppercase">État</p><p class="text-xs font-black ${cli.cli_actif?'text-emerald-500':'text-slate-400'}">${cli.cli_actif?'ACTIF':'INACTIF'}</p></div>
+            </div>
+            <div class="flex gap-2">
+                <button onclick="openFacQuick('${esc(cli.cli_cod)}')" class="flex-1 bg-slate-900 text-white py-3 rounded-xl text-[10px] font-black uppercase hover:bg-indigo-600"><i class="fas fa-plus-circle mr-1"></i>Facturer</button>
+                <button onclick="openAbo('${esc(cli.cli_cod)}','${esc(cli.cli_raso)}')" class="p-3 bg-purple-50 text-purple-600 rounded-xl hover:bg-purple-100" title="Abonnement"><i class="fas fa-sync"></i></button>
+            </div>
+        </div>`).join('');
+}
+
+function newClient(){
+    document.getElementById('client-form').reset(); document.getElementById('client-form').classList.remove('hidden');
+    document.getElementById('cli_cod').readOnly=false; document.getElementById('list-clients').classList.add('hidden');
+    document.getElementById('form-container').classList.remove('hidden'); document.getElementById('form-title').innerText='Nouveau Client';
+    markClean(); setTimeout(() => document.getElementById('cli_cod')?.focus(), 100);
+}
+function editClient(cod){
+    const cli=allClients.find(x=>x.cli_cod===cod); if(!cli)return;
+    newClient(); document.getElementById('form-title').innerText='Modifier Client';
+    for(const f of ['cli_cod','cli_raso','cli_ice','cli_if','cli_rc','cli_patente','cli_email','cli_tel','cli_adr','cli_vil','cli_mode_reg','cli_banque','cli_rib','cli_actif','cli_abo_cadence','cli_abo_montant','cli_abo_next','cli_notes']){
+        const el=document.getElementById(f); if(el) el.value=cli[f]!==undefined&&cli[f]!==null?cli[f]:'';
+    }
+    document.getElementById('cli_cod').readOnly=true;
+}
+document.getElementById('client-form').onsubmit=async(e)=>{
+    e.preventDefault();
+    if (!validateForm('client-form')) { showToast('Corrigez les champs en rouge', false); return; }
+    const btn = e.target.querySelector('button[type="submit"]');
+    setBtnLoading(btn, true);
+    const data={}; for(const f of ['cli_cod','cli_raso','cli_ice','cli_if','cli_rc','cli_patente','cli_email','cli_tel','cli_adr','cli_vil','cli_mode_reg','cli_banque','cli_rib','cli_abo_cadence','cli_abo_montant','cli_abo_next','cli_notes']) data[f]=document.getElementById(f).value;
+    data.cli_actif=parseInt(document.getElementById('cli_actif').value); data.cli_abo_montant=parseFloat(data.cli_abo_montant)||0;
+    await api('/api/clients',{method:'POST',body:JSON.stringify(data)});
+    setBtnLoading(btn, false);
+    markClean();
+    showToast('Client enregistré'); switchView('clients');
+};
+
+// ═══════ CLIENT DETAIL VIEW ═══════
+function viewClient(cod) {
+    const cli = allClients.find(x => x.cli_cod === cod);
+    if (!cli) return;
+    document.getElementById('client-detail-title').innerText = 'Fiche Client - ' + esc(cli.cli_raso);
+    document.getElementById('client-detail-sub').innerText = cod;
+    for (const f of ['cli_cod','cli_raso','cli_ice','cli_if','cli_rc','cli_patente','cli_email','cli_tel','cli_vil','cli_adr','cli_mode_reg','cli_banque','cli_rib','cli_actif','cli_notes','cli_abo_cadence','cli_abo_montant','cli_abo_next']) {
+        const el = document.getElementById('cd-'+f);
+        if (el) el.innerText = cli[f] !== undefined && cli[f] !== null ? (cli[f] + '') : '-';
+    }
+    document.getElementById('cd-cli_actif').innerHTML = cli.cli_actif ? '<span class="text-emerald-600 font-black">ACTIF</span>' : '<span class="text-slate-400 font-bold">INACTIF</span>';
+    if (document.getElementById('cd-cli_abo_montant')) document.getElementById('cd-cli_abo_montant').innerText = (cli.cli_abo_montant||0) + ' DH';
+    switchClientTab('info');
+    loadClientFactures(cod);
+    loadClientReglements(cod);
+    document.getElementById('modal-client-detail').classList.remove('hidden');
+}
+function switchClientTab(tab) {
+    for (const t of ['info','factures','reglements','situation']) {
+        document.getElementById('ctab-content-'+t).classList.toggle('hidden', t !== tab);
+        const btn = document.getElementById('ctab-'+t);
+        btn.className = t === tab ? 'pb-3 text-sm font-black text-indigo-600 border-b-2 border-indigo-600' : 'pb-3 text-sm font-bold text-slate-400 hover:text-slate-700';
+    }
+    if (tab === 'situation') loadClientSituation(document.getElementById('client-detail-sub').innerText);
+}
+async function loadClientFactures(cli_cod) {
+    const tbody = document.getElementById('cd-factures-body');
+    try {
+        const r = await api('/api/factures?cli_cod='+encodeURIComponent(cli_cod)+'&per_page=50');
+        const facs = r.items || [];
+        if (!facs.length) { tbody.innerHTML = '<tr><td colspan="5" class="p-6 text-center text-slate-400">Aucune facture</td></tr>'; return; }
+        tbody.innerHTML = facs.map(f => {
+            const tva = f.fac_mt_ht * (f.fac_tva || 20) / 100;
+            const ttc = f.fac_mt_ht + tva;
+            const ec = f.fac_etat === 'VALIDE' ? 'text-emerald-600' : f.fac_etat === 'BROUILLON' ? 'text-orange-600' : 'text-slate-400';
+            return `<tr class="hover:bg-slate-50"><td class="p-3 font-bold"><a href="#" onclick="event.preventDefault();closeClientDetail();openFacEdit(${f.fac_num})" class="text-indigo-600 hover:underline">#${f.fac_num}</a></td><td class="p-3">${f.fac_dat}</td><td class="p-3 text-right">${f.fac_mt_ht.toFixed(2)}</td><td class="p-3 text-right font-bold">${ttc.toFixed(2)}</td><td class="p-3"><span class="${ec} font-bold text-xs">${f.fac_etat}</span></td></tr>`;
+        }).join('');
+    } catch(e) { tbody.innerHTML = '<tr><td colspan="5" class="p-6 text-center text-red-400">Erreur chargement</td></tr>'; }
+}
+async function loadClientReglements(cli_cod) {
+    const tbody = document.getElementById('cd-reglements-body');
+    try {
+        const r = await api('/api/reglements?cli_cod='+encodeURIComponent(cli_cod)+'&per_page=50');
+        const regs = r.items || [];
+        if (!regs.length) { tbody.innerHTML = '<tr><td colspan="5" class="p-6 text-center text-slate-400">Aucun règlement</td></tr>'; return; }
+        tbody.innerHTML = regs.map(r => `<tr class="hover:bg-slate-50"><td class="p-3 font-bold">#${r.reg_id}</td><td class="p-3">${r.reg_dat}</td><td class="p-3 text-right font-bold text-emerald-600">${r.reg_mt.toFixed(2)}</td><td class="p-3"><span class="px-2 py-1 rounded-lg text-[10px] font-black uppercase bg-slate-100">${r.reg_mode}</span></td><td class="p-3 text-sm text-slate-500 font-mono">${esc(r.reg_ref||'')}</td></tr>`).join('');
+    } catch(e) { tbody.innerHTML = '<tr><td colspan="5" class="p-6 text-center text-red-400">Erreur chargement</td></tr>'; }
+}
+function closeClientDetail() {
+    document.getElementById('modal-client-detail').classList.add('hidden');
+}
+
+async function loadClientSituation(cli_cod) {
+    try {
+        const d = await api('/api/rapports/situation-client/'+encodeURIComponent(cli_cod));
+        const c = d.client;
+        document.getElementById('cd-situation-cards').innerHTML = `
+            <div class="bg-indigo-50 p-4 rounded-xl"><p class="text-[10px] font-bold text-indigo-500 uppercase">CA Total HT</p><p class="text-xl font-black">${d.ca_ht.toFixed(2)} DH</p></div>
+            <div class="bg-indigo-50 p-4 rounded-xl"><p class="text-[10px] font-bold text-indigo-500 uppercase">CA Total TTC</p><p class="text-xl font-black">${d.ca_ttc.toFixed(2)} DH</p></div>
+            <div class="bg-emerald-50 p-4 rounded-xl"><p class="text-[10px] font-bold text-emerald-500 uppercase">Total Réglé</p><p class="text-xl font-black text-emerald-600">${d.total_regle.toFixed(2)} DH</p></div>
+            <div class="bg-red-50 p-4 rounded-xl"><p class="text-[10px] font-bold text-red-500 uppercase">Restant à Payer</p><p class="text-xl font-black text-red-600">${d.total_reste.toFixed(2)} DH</p></div>
+            <div class="bg-slate-50 p-4 rounded-xl"><p class="text-[10px] font-bold text-slate-500 uppercase">Factures</p><p class="text-xl font-black">${d.nb_factures}</p></div>
+            <div class="bg-slate-50 p-4 rounded-xl"><p class="text-[10px] font-bold text-slate-500 uppercase">Client</p><p class="text-sm font-bold">${esc(c.cli_raso)}</p><p class="text-xs text-slate-400">${esc(c.cli_cod)}</p></div>
+        `;
+        const facs = d.factures || [];
+        document.getElementById('cd-situation-factures').innerHTML = facs.length
+            ? facs.map(f => {
+                const etatCls = f.fac_etat === 'VALIDE' ? 'text-emerald-600' : 'text-orange-600';
+                const resteCls = f.reste > 0.01 ? 'text-red-600 font-black' : 'text-emerald-600';
+                return `<tr class="border-b text-sm hover:bg-slate-50">
+                    <td class="p-2 font-bold">#${f.fac_num}</td>
+                    <td class="p-2">${f.fac_dat}</td>
+                    <td class="p-2 text-right">${f.fac_mt_ht.toFixed(2)}</td>
+                    <td class="p-2 text-right font-bold">${f.ttc.toFixed(2)}</td>
+                    <td class="p-2 text-right">${f.total_regle.toFixed(2)}</td>
+                    <td class="p-2 text-right ${resteCls}">${f.reste.toFixed(2)}</td>
+                    <td class="p-2"><span class="${etatCls} font-bold text-[10px]">${f.fac_etat}</span></td>
+                </tr>`;
+            }).join('')
+            : '<tr><td colspan="7" class="p-4 text-center text-slate-400">Aucune facture</td></tr>';
+        const regs = d.reglements || [];
+        document.getElementById('cd-situation-reglements').innerHTML = regs.length
+            ? regs.map(r => `<tr class="border-b text-sm hover:bg-slate-50">
+                <td class="p-2 font-bold">#${r.reg_id}</td>
+                <td class="p-2">${r.reg_dat}</td>
+                <td class="p-2 text-right font-bold text-emerald-600">${r.reg_mt.toFixed(2)}</td>
+                <td class="p-2"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${r.reg_mode==='ESPECES'?'bg-emerald-100 text-emerald-700':r.reg_mode==='CHEQUE'?'bg-blue-100 text-blue-700':'bg-purple-100 text-purple-700'}">${r.reg_mode}</span></td>
+                <td class="p-2 text-slate-500 font-mono text-xs">${esc(r.reg_ref||'')}</td>
+            </tr>`).join('')
+            : '<tr><td colspan="5" class="p-4 text-center text-slate-400">Aucun règlement</td></tr>';
+    } catch(e) {
+        document.getElementById('cd-situation-cards').innerHTML = '<p class="text-red-400">Erreur chargement situation</p>';
+    }
+}
+
+function printClientSituation() {
+    const cli_cod = document.getElementById('client-detail-sub').innerText;
+    const cli_raso = document.getElementById('client-detail-title').innerText.replace('Fiche Client - ','');
+    const win = window.open('', '_blank');
+    win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Situation - ${esc(cli_raso)}</title>
+        <style>
+            body { font-family: 'Arial', sans-serif; padding: 40px; color: #1e293b; }
+            h1 { font-size: 24px; margin-bottom: 4px; }
+            .sub { color: #64748b; font-size: 14px; margin-bottom: 24px; }
+            .cards { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; margin-bottom: 24px; }
+            .card { border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; }
+            .card-label { font-size: 10px; font-weight: bold; text-transform: uppercase; color: #94a3b8; }
+            .card-val { font-size: 22px; font-weight: bold; margin-top: 4px; }
+            table { width: 100%; border-collapse: collapse; margin-bottom: 24px; }
+            th { background: #f1f5f9; text-align: left; padding: 8px 12px; font-size: 10px; text-transform: uppercase; }
+            td { padding: 8px 12px; border-bottom: 1px solid #e2e8f0; font-size: 13px; }
+            .text-right { text-align: right; }
+            .text-red { color: #dc2626; }
+            .text-emerald { color: #059669; }
+            h2 { font-size: 16px; margin-bottom: 12px; margin-top: 24px; }
+            @media print { body { padding: 20px; } }
+        </style></head><body>
+        <h1>Situation Client</h1>
+        <div class="sub" id="print-situ-sub">Chargement...</div>
+        <div id="print-situ-content"></div>
+        <script>
+        fetch('/api/rapports/situation-client/${cli_cod}', { headers: {"Authorization":"Bearer ${getToken()}"} })
+        .then(r=>r.json()).then(d=>{
+            document.getElementById('print-situ-sub').innerText = '${esc(cli_raso)} ('+d.client.cli_cod+') | ICE: '+(d.client.cli_ice||'---')+' | IF: '+(d.client.cli_if||'---')+' | RC: '+(d.client.cli_rc||'---');
+            document.getElementById('print-situ-content').innerHTML = \`
+                <div class="cards">
+                    <div class="card"><div class="card-label">CA HT</div><div class="card-val">\${d.ca_ht.toFixed(2)} DH</div></div>
+                    <div class="card"><div class="card-label">CA TTC</div><div class="card-val">\${d.ca_ttc.toFixed(2)} DH</div></div>
+                    <div class="card"><div class="card-label">Total Réglé</div><div class="card-val" style="color:#059669">\${d.total_regle.toFixed(2)} DH</div></div>
+                    <div class="card"><div class="card-label">Restant à Payer</div><div class="card-val" style="color:#dc2626">\${d.total_reste.toFixed(2)} DH</div></div>
+                    <div class="card"><div class="card-label">Factures</div><div class="card-val">\${d.nb_factures}</div></div>
+                    <div class="card"><div class="card-label">Téléphone</div><div class="card-val" style="font-size:16px">\${d.client.cli_tel||'---'}</div></div>
+                </div>
+                <h2>Factures</h2>
+                <table>
+                    <tr><th>N°</th><th>Date</th><th class="text-right">HT</th><th class="text-right">TTC</th><th class="text-right">Réglé</th><th class="text-right">Reste</th><th>État</th></tr>
+                    \${(d.factures||[]).map(f=>'<tr><td>#'+f.fac_num+'</td><td>'+f.fac_dat+'</td><td class="text-right">'+f.fac_mt_ht.toFixed(2)+'</td><td class="text-right">'+f.ttc.toFixed(2)+'</td><td class="text-right">'+f.total_regle.toFixed(2)+'</td><td class="text-right '+(f.reste>0.01?'text-red':'text-emerald')+'">'+f.reste.toFixed(2)+'</td><td>'+f.fac_etat+'</td></tr>').join('')}
+                </table>
+                <h2>Règlements</h2>
+                <table>
+                    <tr><th>ID</th><th>Date</th><th class="text-right">Montant</th><th>Mode</th><th>Réf</th></tr>
+                    \${(d.reglements||[]).map(r=>'<tr><td>#'+r.reg_id+'</td><td>'+r.reg_dat+'</td><td class="text-right">'+r.reg_mt.toFixed(2)+'</td><td>'+r.reg_mode+'</td><td>'+(r.reg_ref||'')+'</td></tr>').join('')}
+                </table>
+            \`;
+            window.print();
+        }).catch(e=>{ document.getElementById('print-situ-content').innerText='Erreur: '+e.message; });
+        <\/script>
+        </body></html>`);
+    win.document.close();
+}
+
+function getToken() {
+    try { return TOKEN; } catch { return ''; }
+}
+
+// ═══════ ARTICLES ═══════
+function renderArticles() {
+    const tbody=document.getElementById('articles-body');
+    if(!allArticles.length){tbody.innerHTML='<tr><td colspan="8" class="p-8 text-center text-slate-400"><i class="fas fa-box text-3xl mb-2 opacity-30 block"></i>Aucun article</td></tr>';return;}
+    tbody.innerHTML=allArticles.map(a=>`
+        <tr class="hover:bg-slate-50 transition">
+            <td class="p-2"><input type="checkbox" class="batch-check" onchange="batchToggle('articles','${esc(a.art_cod)}',this.checked)" ${batchState.view==='articles'&&batchState.ids.has(a.art_cod)?'checked':''}></td>
+            <td class="p-4 font-bold text-indigo-600">${esc(a.art_cod)}</td>
+            <td class="p-4 font-bold">${esc(a.art_lib)}</td>
+            <td class="p-4 text-slate-500">${esc(a.art_faar||'')}</td>
+            <td class="p-4 text-right font-mono">${(a.art_prveT||0).toFixed(2)}</td>
+            <td class="p-4 text-right font-mono font-bold">${(a.art_pracT||0).toFixed(2)}</td>
+            <td class="p-4 text-right">${(a.art_stk||0)}</td>
+            <td class="p-4 text-center"><button onclick="editArticle('${esc(a.art_cod)}')" class="text-indigo-600 mx-1"><i class="fas fa-pen"></i></button><button onclick="confirmDelete('articles','${esc(a.art_cod)}')" class="text-red-500 mx-1"><i class="fas fa-trash"></i></button></td>
+        </tr>`).join('');
+}
+function newArticle(){
+    document.getElementById('article-form').reset(); document.getElementById('art_cod').readOnly=false;
+    document.getElementById('list-articles').classList.add('hidden'); document.getElementById('form-article').classList.remove('hidden');
+    document.getElementById('form-article-title').innerText='Nouvel Article';
+    markClean(); setTimeout(() => document.getElementById('art_cod')?.focus(), 100);
+}
+function editArticle(cod){
+    const a=allArticles.find(x=>x.art_cod===cod); if(!a)return;
+    newArticle(); document.getElementById('form-article-title').innerText='Modifier Article';
+    document.getElementById('art_cod').value=a.art_cod; document.getElementById('art_cod').readOnly=true;
+    document.getElementById('art_lib').value=a.art_lib||''; document.getElementById('art_faar').value=a.art_faar||'';
+    document.getElementById('art_pracT').value=a.art_pracT||0; document.getElementById('art_prveT').value=a.art_prveT||0; document.getElementById('art_stk').value=a.art_stk||0;
+}
+document.getElementById('article-form').onsubmit=async(e)=>{
+    e.preventDefault();
+    if (!validateForm('article-form')) { showToast('Corrigez les champs en rouge', false); return; }
+    const btn = e.target.querySelector('button[type="submit"]');
+    setBtnLoading(btn, true);
+    const data={art_cod:document.getElementById('art_cod').value,art_lib:document.getElementById('art_lib').value,art_faar:document.getElementById('art_faar').value,art_pracT:parseFloat(document.getElementById('art_pracT').value)||0,art_prveT:parseFloat(document.getElementById('art_prveT').value)||0,art_stk:parseFloat(document.getElementById('art_stk').value)||0};
+    await api('/api/articles',{method:'POST',body:JSON.stringify(data)});
+    setBtnLoading(btn, false); markClean();
+    showToast('Article enregistré'); switchView('articles');
+};
+
+// ═══════ FACTURES ═══════
+function renderFactures() {
+    const tbody=document.getElementById('factures-body');
+    if(!allFactures.length){tbody.innerHTML='<tr><td colspan="12" class="p-8 text-center text-slate-400"><i class="fas fa-file-invoice-dollar text-3xl mb-2 opacity-30 block"></i>Aucune facture</td></tr>';return;}
+    tbody.innerHTML=allFactures.map(f=>{
+        const tva=f.fac_mt_ht*(f.fac_tva||20)/100; const ttc=f.fac_mt_ht+tva;
+        const regle=f.total_regle||0; const reste=f.reste||0;
+        const checked=batchState.view==='factures'&&batchState.ids.has(f.fac_num)?'checked':'';
+        return `<tr class="${f.fac_etat==='BROUILLON'?'bg-orange-50/50':''} transition">
+            <td class="p-2"><input type="checkbox" class="batch-check" onchange="batchToggle('factures',${f.fac_num},this.checked)" ${checked}></td>
+            <td class="p-4 font-bold">#${f.fac_num}</td>
+            <td class="p-4 text-sm">${f.fac_dat}</td>
+            <td class="p-4 font-bold">${esc(f.cli_raso)}</td>
+            <td class="p-4 text-right font-mono">${f.fac_mt_ht.toFixed(2)}</td>
+            <td class="p-4 text-right font-mono text-slate-500">${tva.toFixed(2)}</td>
+            <td class="p-4 text-right font-black">${ttc.toFixed(2)}</td>
+            <td class="p-4 text-right font-mono text-emerald-600">${regle.toFixed(2)}</td>
+            <td class="p-4 text-right font-mono font-black ${reste>0.01?'text-red-600':'text-emerald-600'}">${reste.toFixed(2)}</td>
+            <td class="p-4 text-center"><span class="text-[10px] font-black uppercase ${f.fac_type==='ABONNEMENT'?'text-purple-500':'text-slate-500'}">${f.fac_type||'PONCTUEL'}</span></td>
+            <td class="p-4 text-center"><span class="px-3 py-1 rounded-full text-[10px] font-black uppercase ${f.fac_etat==='VALIDE'?'bg-emerald-100 text-emerald-600':'bg-orange-100 text-orange-600'}">${f.fac_etat}</span></td>
+            <td class="p-4 text-center">
+                <button onclick="openFacEdit(${f.fac_num})" class="text-indigo-600 mx-1" title="Modifier"><i class="fas fa-pen"></i></button>
+                <button onclick="window.open('/api/factures/${f.fac_num}/pdf')" class="text-emerald-600 mx-1" title="PDF"><i class="fas fa-file-pdf"></i></button>
+                <button onclick="openPrint(${f.fac_num})" class="text-slate-600 mx-1" title="Imprimer"><i class="fas fa-print"></i></button>
+                ${f.fac_etat==='BROUILLON'?`<button onclick="validerFac(${f.fac_num})" class="text-emerald-600 mx-1" title="Valider"><i class="fas fa-check-circle"></i></button>`:''}
+                ${f.fac_etat==='BROUILLON'?`<button onclick="confirmDelete('factures',${f.fac_num})" class="text-red-500 mx-1" title="Supprimer"><i class="fas fa-trash"></i></button>`:''}
+            </td>
+        </tr>`;
+    }).join('');
+}
+async function validerFac(num){
+    showConfirm('Valider', 'Valider cette facture ?', async ()=>{
+        await api('/api/factures/valider',{method:'POST',body:JSON.stringify([num])});
+        showToast('Facture validée');
+        loadData();
+    });
+}
+
+async function openPrint(num){
+    const d=await api(`/api/factures/${num}/print`);
+    if(!d.fac)return;
+    const f=d.fac; const lignes=d.lignes||[];
+    const tva=f.fac_mt_ht*(f.fac_tva||20)/100; const ttc=f.fac_mt_ht+tva;
+    const rows=lignes.length?lignes.map((l,i)=>`<tr${i%2?' class="bg-slate-50"':''}><td class="p-3">${i+1}</td><td class="p-3">${esc(l.lig_art_lib)}</td><td class="p-3 text-center">${l.lig_qte}</td><td class="p-3 text-right">${l.lig_pu.toFixed(2)}</td><td class="p-3 text-right font-bold">${(l.lig_qte*l.lig_pu).toFixed(2)}</td></tr>`).join(''):`<tr><td class="p-3" colspan="5">Prestation</td></tr>`;
+    document.getElementById('print-content').innerHTML=`
+        <div style="font-family:sans-serif;max-width:800px;margin:auto">
+            <div style="display:flex;justify-content:space-between;border-bottom:3px solid #1e293b;padding-bottom:20px;margin-bottom:20px">
+                <div><h1 style="font-size:24px;margin:0">FATIGEST PRO</h1><p style="color:#64748b;font-size:12px;margin:2px 0">Société de services</p></div>
+                <div style="text-align:right"><h2 style="font-size:22px;margin:0;color:#6366f1">FACTURE N° ${f.fac_num}</h2><p style="color:#64748b;font-size:13px">Date: ${f.fac_dat}<br>Type: ${f.fac_type||'PONCTUEL'}</p></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:24px;font-size:13px">
+                <div><b>Client:</b> ${esc(f.cli_raso)}<br>ICE: ${f.cli_ice||'---'}<br>IF: ${f.cli_if||'---'}<br>RC: ${f.cli_rc||'---'}<br>Adresse: ${esc(f.cli_adr||'')} ${esc(f.cli_vil||'')}</div>
+                <div style="text-align:right"><b>Tél:</b> ${f.cli_tel||'---'}<br><b>Email:</b> ${f.cli_email||'---'}</div>
+            </div>
+            <table style="width:100%;border-collapse:collapse;font-size:13px">
+                <thead><tr style="background:#1e293b;color:white"><th style="padding:10px;text-align:left">N°</th><th style="padding:10px;text-align:left">Désignation</th><th style="padding:10px;text-align:center">Qté</th><th style="padding:10px;text-align:right">P.U. HT</th><th style="padding:10px;text-align:right">Total HT</th></tr></thead>
+                <tbody>${rows}</tbody>
+                <tfoot>
+                    <tr style="font-weight:bold;border-top:2px solid #000"><td colspan="4" style="padding:10px;text-align:right">Total HT</td><td style="padding:10px;text-align:right">${f.fac_mt_ht.toFixed(2)}</td></tr>
+                    <tr><td colspan="4" style="padding:5px;text-align:right">TVA (${f.fac_tva||20}%)</td><td style="padding:5px;text-align:right">${tva.toFixed(2)}</td></tr>
+                    <tr style="font-weight:bold;font-size:16px;border-top:2px solid #000"><td colspan="4" style="padding:10px;text-align:right">Total TTC</td><td style="padding:10px;text-align:right">${ttc.toFixed(2)}</td></tr>
+                </tfoot>
+            </table>
+            <div style="margin-top:30px;padding-top:20px;border-top:1px solid #e2e8f0;font-size:12px;color:#64748b;display:flex;justify-content:space-between">
+                <div><b>Mode de règlement:</b> ${f.cli_mode_reg}<br><b>RIB:</b> ${f.cli_rib||'---'}<br><b>Banque:</b> ${f.cli_banque||'---'}</div>
+                <div>Arrêtée la présente à la somme de <b>${ttc.toFixed(2)} DH TTC</b><br>TVA au taux de ${f.fac_tva||20}%</div>
+            </div>
+        </div>`;
+    document.getElementById('modal-print').classList.remove('hidden');
+}
+
+// FACTURE Modal
+async function openFacEdit(num){
+    editingFacNum=num; const fac=await api(`/api/factures/${num}`);
+    document.getElementById('fac-modal-title').innerText='Modifier Facture #'+num; document.getElementById('fac-modal-sub').innerText=fac.cli_raso;
+    document.getElementById('fac_num_edit').value=num; document.getElementById('fac_dat').value=fac.fac_dat;
+    document.getElementById('fac_echeance').value=fac.fac_echeance||'30 jours';
+    document.getElementById('fac_tva_rate').value=fac.fac_tva||20;
+    document.getElementById('fac_notes').value=fac.fac_notes||'';
+    const sel=document.getElementById('fac_cli_cod'); if(sel.options.length<=1) await populateClientSelect(sel);
+    sel.value=fac.fac_cli_cod; document.getElementById('fac-lignes-body').innerHTML='';
+    if(fac.lignes&&fac.lignes.length) fac.lignes.forEach(l=>addLigne('fac',l.lig_art_cod,l.lig_art_lib,l.lig_qte,l.lig_pu,l.lig_remise||0));
+    else addLigne('fac','','',1,fac.fac_mt_ht||0);
+    calcTotal('fac'); markClean(); document.getElementById('modal-fac').classList.remove('hidden');
+    document.getElementById('fac-reg-toggle').checked=false; document.getElementById('fac-reg-fields').classList.add('hidden');
+    loadFacRegs(num);
+    const resteVal = fac.reste || 0;
+    if (resteVal > 0.01) {
+        document.getElementById('fac-reste-display').classList.remove('hidden');
+        document.getElementById('fac-reste-value').innerText = resteVal.toFixed(2);
+    } else {
+        document.getElementById('fac-reste-display').classList.add('hidden');
+    }
+}
+async function openFacCreate(){
+    editingFacNum=null; document.getElementById('fac-modal-title').innerText='Nouvelle Facture'; document.getElementById('fac-modal-sub').innerText='Saisie des lignes';
+    document.getElementById('fac_num_edit').value=''; document.getElementById('fac_dat').value=new Date().toISOString().slice(0,10);
+    document.getElementById('fac_echeance').value='30 jours';
+    document.getElementById('fac_tva_rate').value='20';
+    document.getElementById('fac_notes').value='';
+    document.getElementById('fac-reg-toggle').checked=false;
+    document.getElementById('fac-reg-fields').classList.add('hidden');
+    document.getElementById('fac-reg-list').classList.add('hidden');
+    document.getElementById('fac-reste-display').classList.add('hidden');
+    document.getElementById('fac-reg-mt').value=''; document.getElementById('fac-reg-ref').value='';
+    const sel=document.getElementById('fac_cli_cod'); if(sel.options.length<=1) await populateClientSelect(sel);
+    sel.value=''; document.getElementById('fac-lignes-body').innerHTML=''; addLigne('fac','','',1,0); calcTotal('fac'); markClean(); document.getElementById('modal-fac').classList.remove('hidden');
+    setTimeout(() => { const inp = document.querySelector('#fac-lignes-body .lig-code'); if (inp) inp.focus(); }, 200);
+}
+async function populateClientSelect(sel){
+    const clients=await api('/api/clients/all?actif=1');
+    sel.innerHTML='<option value="">-- Client --</option>'+clients.map(c=>`<option value="${c.cli_cod}">${esc(c.cli_raso)}</option>`).join('');
+    makeSearchable(sel.id);
+}
+let ligneRowCount=0;
+function addLigne(prefix, cod, lib, qte, pu, remise){
+    prefix = prefix || 'fac'; remise = remise || 0;
+    const container=document.getElementById(prefix+'-lignes-body'); const row=document.createElement('tr'); row.className='ligne-row';
+    row.innerHTML=`<td class="p-1"><input type="text" class="lig-code w-20 p-2 bg-slate-50 border rounded-lg text-xs" value="${esc(cod||'')}" list="art-list" autocomplete="off"></td>
+        <td class="p-1"><input type="text" class="lig-lib w-full p-2 bg-slate-50 border rounded-lg text-xs" value="${esc(lib||'')}" autocomplete="off"></td>
+        <td class="p-1"><input type="number" class="lig-qte w-16 p-2 bg-slate-50 border rounded-lg text-xs text-right" value="${qte||1}" step="0.01" oninput="calcTotal('${prefix}')"></td>
+        <td class="p-1"><input type="number" class="lig-pu w-24 p-2 bg-slate-50 border rounded-lg text-xs text-right" value="${pu||0}" step="0.01" oninput="calcTotal('${prefix}')"></td>
+        <td class="p-1"><input type="number" class="lig-remise w-16 p-2 bg-slate-50 border rounded-lg text-xs text-right" value="${remise}" min="0" max="100" step="0.01" oninput="calcTotal('${prefix}')"></td>
+        <td class="p-1 text-right font-bold text-sm lig-total">${fmtNum((qte||1)*(pu||0))}</td>
+        <td class="p-1"><button onclick="this.closest('tr').remove();calcTotal('${prefix}')" class="text-red-400"><i class="fas fa-times"></i></button></td>`;
+    container.appendChild(row);
+    setupLineAutocomplete(prefix);
+}
+function calcTotal(prefix){
+    prefix = prefix || 'fac';
+    let t=0; document.querySelectorAll('#'+prefix+'-lignes-body .ligne-row').forEach(r=>{const q=parseFloat(r.querySelector('.lig-qte').value)||0,p=parseFloat(r.querySelector('.lig-pu').value)||0,rem=parseFloat(r.querySelector('.lig-remise').value)||0,mt=q*p*(1-rem/100);r.querySelector('.lig-total').innerText=fmtNum(mt);t+=mt;});
+    document.getElementById(prefix+'-total-ht').innerHTML=fmtNum(t)+' <span class="text-sm font-bold text-slate-400">DH</span>';
+    const tvaRate=parseFloat(document.getElementById(prefix+'_tva_rate').value)||0;
+    const tva=t*tvaRate/100;
+    document.getElementById(prefix+'-total-tva').innerText=fmtNum(tva);
+    document.getElementById(prefix+'-total-ttc').innerHTML=fmtNum(t+tva)+' <span class="text-sm font-bold text-slate-400">DH</span>';
+}
+async function submitFacture(valider){
+    const cli=document.getElementById('fac_cli_cod').value; if(!cli)return showToast('Client requis', false);
+    const lignes=[]; document.querySelectorAll('#fac-lignes-body .ligne-row').forEach(r=>{const pu=parseFloat(r.querySelector('.lig-pu').value)||0;if(pu>0)lignes.push({art_cod:r.querySelector('.lig-code').value,art_lib:r.querySelector('.lig-lib').value,qte:parseFloat(r.querySelector('.lig-qte').value)||1,pu,remise:parseFloat(r.querySelector('.lig-remise').value)||0});});
+    if(!lignes.length)return showToast('Ajoutez une ligne avec un prix', false);
+    setLoading(true);
+    const total=lignes.reduce((s,l)=>s+l.qte*l.pu*(1-(l.remise||0)/100),0); const dat=document.getElementById('fac_dat').value||new Date().toISOString().slice(0,10);
+    const echeance=document.getElementById('fac_echeance').value;
+    const tvaRate=parseFloat(document.getElementById('fac_tva_rate').value)||20;
+    const body={fac_cli_cod:cli,fac_dat:dat,fac_mt_ht:total,fac_tva:tvaRate,fac_echeance:echeance,fac_etat:'BROUILLON',fac_type:'PONCTUEL',lignes,fac_notes:document.getElementById('fac_notes').value};
+    let num=document.getElementById('fac_num_edit').value;
+    if(num){await api(`/api/factures/${num}`,{method:'PUT',body:JSON.stringify(body)});showToast('Facture modifiée');}
+    else{const r=await api('/api/factures',{method:'POST',body:JSON.stringify(body)});num=r.fac_num;showToast('Facture créée');}
+    if(valider){await api('/api/factures/valider',{method:'POST',body:JSON.stringify([num])});showToast('Facture validée');}
+    if(document.getElementById('fac-reg-toggle').checked){
+        const regMt=parseFloat(document.getElementById('fac-reg-mt').value)||0;
+        if(regMt>0){
+            await api('/api/reglements',{method:'POST',body:JSON.stringify({
+                reg_cli_cod:cli,reg_fac_num:num,
+                reg_dat:document.getElementById('fac-reg-dat').value||new Date().toISOString().slice(0,10),
+                reg_mt:regMt,reg_mode:document.getElementById('fac-reg-mode').value,
+                reg_ref:document.getElementById('fac-reg-ref').value||''
+            })});showToast('Règlement enregistré');
+        }
+    }
+    setLoading(false); markClean();
+    closeFac();switchView('factures');
+}
+function closeFac(){
+    if (formDirty && !confirm('Des modifications non enregistrées seront perdues. Continuer ?')) return;
+    document.getElementById('modal-fac').classList.add('hidden');
+    markClean();
+}
+async function openFacQuick(cod){
+    const sel=document.getElementById('fac_cli_cod');
+    if(sel.options.length<=1) await populateClientSelect(sel);
+    sel.value=cod;
+    document.getElementById('fac_num_edit').value='';
+    document.getElementById('fac_dat').value=new Date().toISOString().slice(0,10);
+    document.getElementById('fac_echeance').value='30 jours';
+    document.getElementById('fac_tva_rate').value='20';
+    document.getElementById('fac_notes').value='';
+    document.getElementById('fac-reg-toggle').checked=false;
+    document.getElementById('fac-reg-fields').classList.add('hidden');
+    document.getElementById('fac-reg-list').classList.add('hidden');
+    document.getElementById('fac-reste-display').classList.add('hidden');
+    document.getElementById('fac-reg-mt').value=''; document.getElementById('fac-reg-ref').value='';
+    document.getElementById('fac-lignes-body').innerHTML='';
+    addLigne('fac','','',1,0); calcTotal('fac');
+    document.getElementById('fac-modal-title').innerText='Nouvelle Facture';
+    document.getElementById('fac-modal-sub').innerText='Client pré-sélectionné';
+    document.getElementById('modal-fac').classList.remove('hidden');
+    markClean();
+    setTimeout(() => { const inp = document.querySelector('#fac-lignes-body .lig-code'); if (inp) inp.focus(); }, 200);
+}
+
+// ═══════ REGLEMENTS ═══════
+function renderReglements() {
+    const tbody=document.getElementById('reglements-body');
+    if(!allReglements.length){tbody.innerHTML='<tr><td colspan="8" class="p-8 text-center text-slate-400"><i class="fas fa-credit-card text-3xl mb-2 opacity-30 block"></i>Aucun règlement</td></tr>';return;}
+    tbody.innerHTML=allReglements.map(r=>{
+        const checked=batchState.view==='reglements'&&batchState.ids.has(r.reg_id)?'checked':'';
+        return `<tr class="hover:bg-slate-50 transition">
+        <td class="p-2"><input type="checkbox" class="batch-check" onchange="batchToggle('reglements',${r.reg_id},this.checked)" ${checked}></td>
+        <td class="p-4 font-bold text-indigo-600">#${r.reg_id}</td>
+        <td class="p-4 text-sm">${r.reg_dat}</td><td class="p-4 font-bold">${esc(r.cli_raso)}</td>
+        <td class="p-4 text-right font-mono font-black text-emerald-600">${r.reg_mt.toFixed(2)} DH</td>
+        <td class="p-4"><span class="px-2 py-1 rounded-lg text-[10px] font-black uppercase bg-slate-100">${r.reg_mode}</span></td>
+        <td class="p-4 text-sm text-slate-500 font-mono">${esc(r.reg_ref||'')}</td>
+        <td class="p-4 text-center"><button onclick="editReglement(${r.reg_id})" class="text-indigo-600 mx-1"><i class="fas fa-pen"></i></button><button onclick="confirmDelete('reglements',${r.reg_id})" class="text-red-500 mx-1"><i class="fas fa-trash"></i></button></td></tr>`}).join('');
+}
+async function newReglement(){
+    editingRegId=null; document.getElementById('reglement-form').reset(); document.getElementById('reg_dat').value=new Date().toISOString().slice(0,10);
+    const sel=document.getElementById('reg_cli_cod'); const clients=await api('/api/clients/all?actif=1');
+    sel.innerHTML='<option value="">-- Client --</option>'+clients.map(c=>`<option value="${c.cli_cod}">${esc(c.cli_raso)}</option>`).join('');
+    makeSearchable(sel.id);
+    document.getElementById('list-reglements').classList.add('hidden'); document.getElementById('form-reglement').classList.remove('hidden');
+    document.getElementById('form-reglement-title').innerText='Nouveau Règlement';
+    document.getElementById('reg_fac_num').innerHTML='<option value="">-- Aucune facture liée --</option>';
+    markClean(); setTimeout(() => sel?.focus(), 100);
+}
+async function editReglement(id){
+    const r=await api(`/api/reglements/${id}`);editingRegId=id;await newReglement();
+    document.getElementById('form-reglement-title').innerText='Modifier Règlement';
+    document.getElementById('reg_cli_cod').value=r.reg_cli_cod;document.getElementById('reg_dat').value=r.reg_dat;
+    document.getElementById('reg_mt').value=r.reg_mt;document.getElementById('reg_mode').value=r.reg_mode;
+    document.getElementById('reg_ref').value=r.reg_ref||'';
+    loadRegFactures(r.reg_cli_cod);
+    setTimeout(() => { if (r.reg_fac_num) document.getElementById('reg_fac_num').value = r.reg_fac_num; }, 500);
+}
+document.getElementById('reg_cli_cod').addEventListener('change', function() {
+    loadRegFactures(this.value);
+});
+document.getElementById('reglement-form').onsubmit=async(e)=>{
+    e.preventDefault();
+    if (!document.getElementById('reg_cli_cod').value) { showToast('Sélectionnez un client', false); return; }
+    if (!document.getElementById('reg_mt').value || parseFloat(document.getElementById('reg_mt').value) <= 0) { showToast('Montant invalide', false); return; }
+    const btn = e.target.querySelector('button[type="submit"]');
+    setBtnLoading(btn, true);
+    const data={reg_cli_cod:document.getElementById('reg_cli_cod').value,reg_dat:document.getElementById('reg_dat').value,
+        reg_mt:parseFloat(document.getElementById('reg_mt').value)||0,reg_mode:document.getElementById('reg_mode').value,
+        reg_ref:document.getElementById('reg_ref').value,reg_fac_num:document.getElementById('reg_fac_num').value||null};
+    if(editingRegId){await api(`/api/reglements/${editingRegId}`,{method:'PUT',body:JSON.stringify(data)});showToast('Règlement modifié');}
+    else{await api('/api/reglements',{method:'POST',body:JSON.stringify(data)});showToast('Règlement enregistré');}
+    setBtnLoading(btn, false); markClean();
+    switchView('reglements');
+};
+
+// ═══════ ABONNEMENTS ═══════
+function renderAbonnements() {
+    const rows = allAbonnements.map(a => {
+        const checked=batchState.view==='abonnements'&&batchState.ids.has(a.cli_cod)?'checked':'';
+        return `<tr class="transition">
+        <td class="p-2"><input type="checkbox" class="batch-check" onchange="batchToggle('abonnements','${esc(a.cli_cod)}',this.checked)" ${checked}></td>
+        <td class="p-4 font-bold">${esc(a.cli_raso)}</td>
+        <td class="p-4 text-center"><span class="px-3 py-1 rounded-full text-[10px] font-black uppercase ${a.cli_abo_cadence==='MENSUEL'?'bg-blue-100 text-blue-600':a.cli_abo_cadence==='TRIMESTRIEL'?'bg-purple-100 text-purple-600':'bg-amber-100 text-amber-600'}">${a.cli_abo_cadence}</span></td>
+        <td class="p-4 text-right font-black">${(a.cli_abo_montant||0).toFixed(2)} DH</td>
+        <td class="p-4 text-center font-mono ${a.cli_abo_next?''+'text-orange-600 font-bold':''}">${a.cli_abo_next||'---'}</td>
+        <td class="p-4 text-center"><button onclick="openAbo('${esc(a.cli_cod)}','${esc(a.cli_raso)}')" class="text-indigo-600 mx-1"><i class="fas fa-pen"></i></button></td></tr>`}).join('');
+    document.getElementById('abonnements-body').innerHTML = rows || '<tr><td colspan="6" class="p-8 text-center text-slate-400 font-bold">Aucun abonnement</td></tr>';
+}
+async function openAbo(cod,name){
+    document.getElementById('abo-client-name').innerText=name; document.getElementById('abo_cli_cod').value=cod;
+    let cli=allClients.find(x=>x.cli_cod===cod);
+    if(!cli) try{cli=await api('/api/clients/'+encodeURIComponent(cod));}catch(e){cli={};}
+    document.getElementById('abo_cadence').value=cli?.cli_abo_cadence||'AUCUNE';
+    document.getElementById('abo_montant').value=cli?.cli_abo_montant||0;
+    document.getElementById('abo_next').value=cli?.cli_abo_next||'';
+    document.getElementById('modal-abo').classList.remove('hidden');
+    markClean(); setTimeout(() => document.getElementById('abo_cadence')?.focus(), 100);
+}
+async function saveAbonnement(){
+    const cod=document.getElementById('abo_cli_cod').value;
+    setLoading(true);
+    await api(`/api/abonnements/${encodeURIComponent(cod)}`,{method:'PUT',body:JSON.stringify({cli_cod:cod,cli_abo_cadence:document.getElementById('abo_cadence').value,cli_abo_montant:parseFloat(document.getElementById('abo_montant').value)||0,cli_abo_next:document.getElementById('abo_next').value||null})});
+    setLoading(false); markClean();
+    showToast('Abonnement mis à jour'); closeModal('modal-abo'); switchView('abonnements');
+}
+async function genererAbonnements(){
+    showConfirm('Générer', 'Générer les factures d\'abonnement pour les échéances dues ?', async ()=>{
+        const r=await api('/api/abonnements/generer',{method:'POST'});
+        showToast(`${r.created} facture(s) d'abonnement créée(s)`); loadData();
+    });
+}
+
+// ═══════ FACTURE REGLEMENT ═══════
+function toggleFacReg() {
+    const show = document.getElementById('fac-reg-toggle').checked;
+    document.getElementById('fac-reg-fields').classList.toggle('hidden', !show);
+    if (show) {
+        document.getElementById('fac-reg-dat').value = new Date().toISOString().slice(0,10);
+        const resteEl = document.getElementById('fac-reste-value');
+        const resteVisible = !document.getElementById('fac-reste-display').classList.contains('hidden');
+        if (resteVisible && resteEl) {
+            document.getElementById('fac-reg-mt').value = parseFloat(resteEl.innerText) || 0;
+        } else {
+            document.getElementById('fac-reg-mt').value = document.getElementById('fac-total-ttc').innerText.replace(/[^0-9.,]/g,'').replace(',','.') || '0';
+        }
+    }
+}
+async function loadFacRegs(facNum) {
+    const container = document.getElementById('fac-reg-list');
+    if (!facNum) { container.classList.add('hidden'); return; }
+    const regs = await api(`/api/reglements?reg_fac_num=${facNum}&per_page=50`);
+    const items = regs?.items || [];
+    if (!items.length) { container.classList.add('hidden'); return; }
+    container.classList.remove('hidden');
+    container.innerHTML = '<p class="text-[10px] font-black uppercase text-slate-400 mb-2">Règlements liés</p>' +
+        items.map(r => `<div class="flex justify-between items-center bg-slate-50 p-2 rounded-lg mb-1 text-sm">
+            <span class="font-mono font-bold text-emerald-600">${r.reg_mt.toFixed(2)} DH</span>
+            <span class="text-xs px-2 py-0.5 rounded-full font-bold ${r.reg_mode==='ESPECES'?'bg-emerald-100 text-emerald-700':r.reg_mode==='CHEQUE'?'bg-blue-100 text-blue-700':'bg-purple-100 text-purple-700'}">${r.reg_mode}</span>
+            <span class="text-xs text-slate-500">${r.reg_dat}</span>
+            <span class="text-xs text-slate-400 font-mono">${esc(r.reg_ref||'')}</span>
+        </div>`).join('');
+}
+
+// ═══════ RAPPORTS ═══════
+let rapportType = null;
+const MONTHS = ['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov','Déc'];
+
+async function loadClientsAll() {
+    try { return await api('/api/clients/all?actif=1'); } catch { return []; }
+}
+
+function renderRapportFilters(type) {
+    const fc = document.getElementById('rapport-filter-controls');
+    const box = document.getElementById('rapport-filters');
+    if (type === 'ca-client' || type === 'restant' || type === 'impayes') {
+        box.classList.remove('hidden');
+        fc.innerHTML = `
+            <div class="space-y-1"><label class="text-[10px] font-bold text-slate-500 uppercase">Clients</label>
+                <select id="rpt-clients" multiple class="w-64 p-2 bg-slate-50 border rounded-xl text-sm">
+                    <option value="__all__" selected>Tous les clients</option>
+                </select></div>
+            <div class="space-y-1"><label class="text-[10px] font-bold text-slate-500 uppercase">Du</label>
+                <input type="date" id="rpt-date-from" class="p-2 bg-slate-50 border rounded-xl text-sm"></div>
+            <div class="space-y-1"><label class="text-[10px] font-bold text-slate-500 uppercase">Au</label>
+                <input type="date" id="rpt-date-to" class="p-2 bg-slate-50 border rounded-xl text-sm"></div>
+            <button onclick="loadRapport(rapportType)" class="bg-indigo-600 text-white px-4 py-2 rounded-xl text-sm font-bold"><i class="fas fa-filter mr-1"></i>Appliquer</button>`;
+        loadClientsAll().then(clients => {
+            const sel = document.getElementById('rpt-clients');
+            if (!sel) return;
+            clients.forEach(c => {
+                const o = document.createElement('option');
+                o.value = c.cli_cod;
+                o.textContent = c.cli_raso;
+                sel.appendChild(o);
+            });
+        });
+    } else if (type === 'ca-article') {
+        box.classList.remove('hidden');
+        fc.innerHTML = `
+            <div class="space-y-1"><label class="text-[10px] font-bold text-slate-500 uppercase">Du</label>
+                <input type="date" id="rpt-date-from" class="p-2 bg-slate-50 border rounded-xl text-sm"></div>
+            <div class="space-y-1"><label class="text-[10px] font-bold text-slate-500 uppercase">Au</label>
+                <input type="date" id="rpt-date-to" class="p-2 bg-slate-50 border rounded-xl text-sm"></div>
+            <div class="space-y-1"><label class="text-[10px] font-bold text-slate-500 uppercase">Famille</label>
+                <input type="text" id="rpt-famille" placeholder="Filtrer famille..." class="p-2 bg-slate-50 border rounded-xl text-sm"></div>
+            <button onclick="loadRapport(rapportType)" class="bg-indigo-600 text-white px-4 py-2 rounded-xl text-sm font-bold"><i class="fas fa-filter mr-1"></i>Appliquer</button>`;
+    } else if (type === 'encaissements') {
+        box.classList.remove('hidden');
+        fc.innerHTML = `
+            <div class="space-y-1"><label class="text-[10px] font-bold text-slate-500 uppercase">Du</label>
+                <input type="date" id="rpt-date-from" class="p-2 bg-slate-50 border rounded-xl text-sm"></div>
+            <div class="space-y-1"><label class="text-[10px] font-bold text-slate-500 uppercase">Au</label>
+                <input type="date" id="rpt-date-to" class="p-2 bg-slate-50 border rounded-xl text-sm"></div>
+            <div class="space-y-1"><label class="text-[10px] font-bold text-slate-500 uppercase">Mode</label>
+                <select id="rpt-mode" class="p-2 bg-slate-50 border rounded-xl text-sm">
+                    <option value="">Tous</option><option value="ESPECES">Espèces</option><option value="CHEQUE">Chèque</option><option value="VIREMENT">Virement</option>
+                </select></div>
+            <button onclick="loadRapport(rapportType)" class="bg-indigo-600 text-white px-4 py-2 rounded-xl text-sm font-bold"><i class="fas fa-filter mr-1"></i>Appliquer</button>`;
+    } else {
+        box.classList.add('hidden');
+    }
+}
+
+function switchRapport(type) {
+    rapportType = type;
+    document.querySelectorAll('#list-rapports .flex-wrap button').forEach(b => b.removeAttribute('data-active'));
+    const btn = document.getElementById('rbtn-' + type);
+    if (btn) btn.setAttribute('data-active', '');
+    renderRapportFilters(type);
+    loadRapport(type);
+}
+
+function getRptClients() {
+    const sel = document.getElementById('rpt-clients');
+    if (!sel) return '';
+    const selected = Array.from(sel.selectedOptions).map(o => o.value).filter(v => v !== '__all__');
+    return selected.join(',');
+}
+
+async function loadRapport(type) {
+    const container = document.getElementById('rapport-container');
+    container.innerHTML = '<p class="text-slate-400"><i class="fas fa-spinner fa-spin mr-2"></i>Chargement...</p>';
+
+    const df = document.getElementById('rpt-date-from')?.value || '';
+    const dt = document.getElementById('rpt-date-to')?.value || '';
+    const clients = getRptClients();
+    const mode = document.getElementById('rpt-mode')?.value || '';
+    const famille = document.getElementById('rpt-famille')?.value || '';
+
+    let url, title;
+    if (type === 'ca-client') {
+        const p = new URLSearchParams(); if (clients) p.set('clients', clients); if (df) p.set('date_from', df); if (dt) p.set('date_to', dt);
+        url = '/api/rapports/ca-client?' + p.toString(); title = 'CA par Client';
+    } else if (type === 'ca-article') {
+        const p = new URLSearchParams(); if (df) p.set('date_from', df); if (dt) p.set('date_to', dt); if (famille) p.set('famille', famille);
+        url = '/api/rapports/ca-article?' + p.toString(); title = 'CA par Article';
+    } else if (type === 'encaissements') {
+        const p = new URLSearchParams(); if (df) p.set('date_from', df); if (dt) p.set('date_to', dt); if (mode) p.set('mode', mode);
+        url = '/api/rapports/encaissements?' + p.toString(); title = 'État des Encaissements';
+    } else if (type === 'restant') {
+        const p = new URLSearchParams(); if (clients) p.set('clients', clients);
+        url = '/api/rapports/restant?' + p.toString(); title = 'Restant à Payer par Client';
+    } else if (type === 'impayes') {
+        const p = new URLSearchParams(); if (clients) p.set('clients', clients);
+        url = '/api/rapports/impayes?' + p.toString(); title = 'Factures Impayées';
+    } else if (type === 'tva') {
+        url = '/api/rapports/tva'; title = 'Synthèse TVA';
+    } else if (type === 'ca-mensuel') {
+        url = '/api/rapports/ca-mensuel'; title = 'CA Mensuel';
+    }
+    const data = await api(url);
+    container.innerHTML = renderRapportTable(type, data, title);
+}
+
+function renderRapportTable(type, data, title) {
+    if (type === 'ca-client') {
+        const rows = (data || []).map(r => `<tr class="border-b hover:bg-slate-50">
+            <td class="p-3 font-bold">${esc(r.cli_raso)}</td>
+            <td class="p-3 text-right font-mono">${parseFloat(r.ca_ht||0).toFixed(2)}</td>
+            <td class="p-3 text-right font-mono font-black">${parseFloat(r.ca_ttc||0).toFixed(2)}</td>
+            <td class="p-3 text-right font-mono text-indigo-600">${parseFloat(r.total_tva||0).toFixed(2)}</td>
+            <td class="p-3 text-center">${r.nb_factures||0}</td>
+        </tr>`).join('');
+        const totalHT = (data||[]).reduce((s,r) => s + parseFloat(r.ca_ht||0), 0);
+        const totalTTC = (data||[]).reduce((s,r) => s + parseFloat(r.ca_ttc||0), 0);
+        const totalTVA = (data||[]).reduce((s,r) => s + parseFloat(r.total_tva||0), 0);
+        return `<p class="font-black text-lg mb-4">${title}</p>
+            <div class="flex gap-6 mb-4 text-sm bg-slate-50 p-3 rounded-xl">
+                <span class="font-bold">Total HT: <span class="font-mono">${totalHT.toFixed(2)} DH</span></span>
+                <span class="font-bold">Total TVA: <span class="font-mono text-indigo-600">${totalTVA.toFixed(2)} DH</span></span>
+                <span class="font-bold">Total TTC: <span class="font-mono font-black">${totalTTC.toFixed(2)} DH</span></span>
+                <span class="font-bold">Clients: <span class="font-mono">${data?.length||0}</span></span>
+            </div>
+            <table class="w-full text-left">
+            <thead class="bg-slate-50 border-b text-xs uppercase"><tr>
+                <th class="p-3">Client</th><th class="p-3 text-right">HT</th><th class="p-3 text-right">TTC</th><th class="p-3 text-right">TVA</th><th class="p-3 text-center">Factures</th>
+            </tr></thead><tbody>${rows}</tbody></table>`;
+    }
+    if (type === 'ca-article') {
+        const rows = (data || []).map(r => `<tr class="border-b hover:bg-slate-50">
+            <td class="p-3 font-mono font-bold text-xs">${esc(r.art_cod)}</td>
+            <td class="p-3 font-bold">${esc(r.art_lib)}</td>
+            <td class="p-3 text-xs text-slate-500">${esc(r.art_faar||'')}</td>
+            <td class="p-3 text-right">${parseFloat(r.qte_totale||0).toFixed(0)}</td>
+            <td class="p-3 text-right font-mono font-black">${parseFloat(r.ca_ht||0).toFixed(2)} DH</td>
+            <td class="p-3 text-center">${r.nb_factures||0}</td>
+        </tr>`).join('');
+        const totalQte = (data||[]).reduce((s,r) => s + parseFloat(r.qte_totale||0), 0);
+        const totalCA = (data||[]).reduce((s,r) => s + parseFloat(r.ca_ht||0), 0);
+        return `<p class="font-black text-lg mb-4">${title}</p>
+            <div class="flex gap-6 mb-4 text-sm bg-slate-50 p-3 rounded-xl">
+                <span class="font-bold">Total Qté: <span class="font-mono">${totalQte.toFixed(0)}</span></span>
+                <span class="font-bold">Total CA HT: <span class="font-mono font-black">${totalCA.toFixed(2)} DH</span></span>
+                <span class="font-bold">Articles: <span class="font-mono">${data?.length||0}</span></span>
+            </div>
+            <table class="w-full text-left">
+            <thead class="bg-slate-50 border-b text-xs uppercase"><tr>
+                <th class="p-3">Code</th><th class="p-3">Libellé</th><th class="p-3">Famille</th><th class="p-3 text-right">Qté</th><th class="p-3 text-right">CA HT</th><th class="p-3 text-center">Factures</th>
+            </tr></thead><tbody>${rows}</tbody></table>`;
+    }
+    if (type === 'encaissements') {
+        const items = data?.items || [];
+        const t = data?.totals || {};
+        const rows = items.map(r => `<tr class="border-b hover:bg-slate-50">
+            <td class="p-3 font-mono text-xs">${r.reg_dat}</td>
+            <td class="p-3 font-bold">${esc(r.cli_raso)}</td>
+            <td class="p-3">#${r.reg_fac_num||'—'}</td>
+            <td class="p-3"><span class="px-2 py-1 rounded-full text-xs font-bold ${r.reg_mode==='ESPECES'?'bg-emerald-100 text-emerald-700':r.reg_mode==='CHEQUE'?'bg-blue-100 text-blue-700':'bg-purple-100 text-purple-700'}">${r.reg_mode}</span></td>
+            <td class="p-3 font-mono text-xs">${esc(r.reg_ref||'')}</td>
+            <td class="p-3 text-right font-mono font-black">${parseFloat(r.reg_mt||0).toFixed(2)} DH</td>
+        </tr>`).join('');
+        return `<p class="font-black text-lg mb-4">${title}</p>
+            <div class="grid grid-cols-4 gap-3 mb-4 text-sm">
+                <div class="bg-slate-50 p-3 rounded-xl"><span class="text-slate-500 text-xs">Total</span><div class="font-black font-mono">${parseFloat(t.total||0).toFixed(2)} DH</div></div>
+                <div class="bg-emerald-50 p-3 rounded-xl"><span class="text-emerald-600 text-xs">Espèces</span><div class="font-black font-mono text-emerald-700">${parseFloat(t.especes||0).toFixed(2)} DH</div></div>
+                <div class="bg-blue-50 p-3 rounded-xl"><span class="text-blue-600 text-xs">Chèques</span><div class="font-black font-mono text-blue-700">${parseFloat(t.cheques||0).toFixed(2)} DH</div></div>
+                <div class="bg-purple-50 p-3 rounded-xl"><span class="text-purple-600 text-xs">Virements</span><div class="font-black font-mono text-purple-700">${parseFloat(t.virements||0).toFixed(2)} DH</div></div>
+            </div>
+            <div class="text-xs text-slate-400 mb-2 font-bold">${t.nb||0} encaissement(s)</div>
+            <table class="w-full text-left">
+            <thead class="bg-slate-50 border-b text-xs uppercase"><tr>
+                <th class="p-3">Date</th><th class="p-3">Client</th><th class="p-3">Facture</th><th class="p-3">Mode</th><th class="p-3">Réf.</th><th class="p-3 text-right">Montant</th>
+            </tr></thead><tbody>${rows}</tbody></table>`;
+    }
+    if (type === 'restant') {
+        const items = data?.items || [];
+        const totalRestant = data?.total_restant || 0;
+        const rows = items.map(r => `<tr class="border-b hover:bg-slate-50">
+            <td class="p-3 font-bold">${esc(r.cli_raso)}</td>
+            <td class="p-3 text-center">${r.nb_factures||0}</td>
+            <td class="p-3 text-right font-mono">${parseFloat(r.total_ttc||0).toFixed(2)}</td>
+            <td class="p-3 text-right font-mono text-emerald-600">${parseFloat(r.total_regle||0).toFixed(2)}</td>
+            <td class="p-3 text-right font-mono font-black text-red-600">${parseFloat(r.restant||0).toFixed(2)} DH</td>
+        </tr>`).join('');
+        return `<p class="font-black text-lg mb-4">${title}</p>
+            <div class="bg-red-50 p-3 rounded-xl mb-4 text-sm inline-block">
+                <span class="font-bold">Total restant à recouvrer: <span class="font-mono font-black text-red-600">${parseFloat(totalRestant||0).toFixed(2)} DH</span></span>
+            </div>
+            <table class="w-full text-left">
+            <thead class="bg-slate-50 border-b text-xs uppercase"><tr>
+                <th class="p-3">Client</th><th class="p-3 text-center">Factures</th><th class="p-3 text-right">Total TTC</th><th class="p-3 text-right">Réglé</th><th class="p-3 text-right text-red-600">Restant</th>
+            </tr></thead><tbody>${rows}</tbody></table>`;
+    }
+    if (type === 'impayes') {
+        const items = data || [];
+        const rows = items.map(r => `<tr class="border-b hover:bg-red-50">
+            <td class="p-3 font-bold text-sm">#${r.fac_num}</td>
+            <td class="p-3 text-sm">${r.fac_dat}</td>
+            <td class="p-3 font-bold">${esc(r.cli_raso)}</td>
+            <td class="p-3 text-right font-mono">${parseFloat(r.total_ttc||0).toFixed(2)}</td>
+            <td class="p-3 text-right font-mono text-emerald-600">${parseFloat(r.regle||0).toFixed(2)}</td>
+            <td class="p-3 text-right font-mono font-black text-red-600">${parseFloat(r.reste||0).toFixed(2)} DH</td>
+        </tr>`).join('');
+        const totalRestant = items.reduce((s,r) => s + parseFloat(r.reste||0), 0);
+        return `<p class="font-black text-lg mb-4 text-red-600">${title}</p>
+            ${items.length ? `<div class="bg-red-50 p-3 rounded-xl mb-4 text-sm inline-block"><span class="font-bold">Total impayé: <span class="font-mono font-black text-red-600">${totalRestant.toFixed(2)} DH</span></span></div>` : '<p class="text-emerald-600 font-bold"><i class="fas fa-check-circle mr-2"></i>Aucun impayé</p>'}
+            ${items.length ? `<table class="w-full text-left">
+            <thead class="bg-slate-50 border-b text-xs uppercase"><tr>
+                <th class="p-3">N°</th><th class="p-3">Date</th><th class="p-3">Client</th><th class="p-3 text-right">Total TTC</th><th class="p-3 text-right">Réglé</th><th class="p-3 text-right text-red-600">Reste</th>
+            </tr></thead><tbody>${rows}</tbody></table>` : ''}`;
+    }
+    if (type === 'tva') {
+        const rows = (data || []).map(r => {
+            const m = MONTHS[parseInt(r.mois)-1] || r.mois;
+            return `<tr class="border-b hover:bg-slate-50">
+                <td class="p-3 font-bold">${m}</td>
+                <td class="p-3 text-right font-mono">${parseFloat(r.total_ht||0).toFixed(2)}</td>
+                <td class="p-3 text-right font-mono font-black text-indigo-600">${parseFloat(r.total_tva||0).toFixed(2)}</td>
+                <td class="p-3 text-center">${r.nb||0}</td>
+            </tr>`;
+        }).join('');
+        const totalHT = (data||[]).reduce((s,r) => s + parseFloat(r.total_ht||0), 0);
+        const totalTVA = (data||[]).reduce((s,r) => s + parseFloat(r.total_tva||0), 0);
+        return `<p class="font-black text-lg mb-4">${title}</p>
+            <div class="flex gap-6 mb-4 text-sm bg-slate-50 p-3 rounded-xl">
+                <span class="font-bold">Total HT: <span class="font-mono">${totalHT.toFixed(2)} DH</span></span>
+                <span class="font-bold">Total TVA: <span class="font-mono text-indigo-600">${totalTVA.toFixed(2)} DH</span></span>
+                <span class="font-bold">Total TTC: <span class="font-mono font-black">${(totalHT+totalTVA).toFixed(2)} DH</span></span>
+            </div>
+            <table class="w-full text-left">
+            <thead class="bg-slate-50 border-b text-xs uppercase"><tr>
+                <th class="p-3">Mois</th><th class="p-3 text-right">HT</th><th class="p-3 text-right">TVA</th><th class="p-3 text-center">Factures</th>
+            </tr></thead><tbody>${rows}</tbody></table>`;
+    }
+    if (type === 'ca-mensuel') {
+        const rows = (data || []).map(r => {
+            const m = MONTHS[parseInt(r.mois)-1] || r.mois;
+            return `<tr class="border-b hover:bg-slate-50">
+                <td class="p-3 font-bold">${m}</td>
+                <td class="p-3 text-right font-mono">${parseFloat(r.ca_ht||0).toFixed(2)}</td>
+                <td class="p-3 text-right font-mono font-black">${parseFloat(r.ca_ttc||0).toFixed(2)} DH</td>
+                <td class="p-3 text-center">${r.nb||0}</td>
+            </tr>`;
+        }).join('');
+        const totalHT = (data||[]).reduce((s,r) => s + parseFloat(r.ca_ht||0), 0);
+        const totalTTC = (data||[]).reduce((s,r) => s + parseFloat(r.ca_ttc||0), 0);
+        return `<p class="font-black text-lg mb-4">${title}</p>
+            <div class="flex gap-6 mb-4 text-sm bg-slate-50 p-3 rounded-xl">
+                <span class="font-bold">Total HT: <span class="font-mono">${totalHT.toFixed(2)} DH</span></span>
+                <span class="font-bold">Total TTC: <span class="font-mono font-black">${totalTTC.toFixed(2)} DH</span></span>
+            </div>
+            <table class="w-full text-left">
+            <thead class="bg-slate-50 border-b text-xs uppercase"><tr>
+                <th class="p-3">Mois</th><th class="p-3 text-right">HT</th><th class="p-3 text-right">TTC</th><th class="p-3 text-center">Factures</th>
+            </tr></thead><tbody>${rows}</tbody></table>`;
+    }
+    return '<p class="text-slate-400">Rapport inconnu.</p>';
+}
+
+// ═══════ BACKUP ═══════
+async function createBackup(){
+    const r=await api('/api/backup');
+    showToast('Sauvegarde créée');
+    window.open(`/api/backup/download/${r.file}`,'_blank');
+    loadBackups();
+}
+async function loadBackups(){
+    const list=await api('/api/backup/list');
+    const c=document.getElementById('backup-list');
+    if(!list.length){c.innerHTML='<p class="text-slate-400 text-sm">Aucune sauvegarde.</p>';return;}
+    c.innerHTML=list.map(f=>`
+        <div class="flex justify-between items-center bg-slate-50 p-4 rounded-xl border">
+            <span class="font-mono text-sm font-bold">${f}</span>
+            <div class="flex gap-2">
+                <a href="/api/backup/download/${f}" class="text-indigo-600 font-bold text-sm"><i class="fas fa-download mr-1"></i>Télécharger</a>
+                <button onclick="deleteBackupConfirm('${f}')" class="text-red-500 font-bold text-sm"><i class="fas fa-trash mr-1"></i>Supprimer</button>
+            </div>
+        </div>`).join('');
+}
+async function deleteBackupConfirm(f){
+    showConfirm('Supprimer', 'Supprimer cette sauvegarde ?', async ()=>{
+        await api('/api/backup/'+f,{method:'DELETE'}); showToast('Sauvegarde supprimée'); loadBackups();
+    });
+}
+
+// ═══════ SORTING ═══════
+let sortState = {};
+const sortDefaults = {
+    clients: 'cli_cod',
+    articles: 'art_cod',
+    factures: 'fac_num',
+    reglements: 'reg_id',
+    abonnements: 'cli_abo_next',
+    devis: 'dev_num'
+};
+function sortTable(view, key) {
+    if (!sortState[view]) sortState[view] = { key: null, dir: null };
+    const st = sortState[view];
+    // Cycle: null (default) -> asc -> desc -> null
+    if (st.key !== key) {
+        st.key = key;
+        st.dir = 'asc';
+    } else if (st.dir === 'asc') {
+        st.dir = 'desc';
+    } else {
+        st.key = null;
+        st.dir = null;
+    }
+    updateSortUI(view);
+    applySort(view);
+}
+function applySort(view) {
+    let data;
+    if (view === 'clients') data = allClients;
+    else if (view === 'articles') data = allArticles;
+    else if (view === 'factures') data = allFactures;
+    else if (view === 'reglements') data = allReglements;
+    else if (view === 'abonnements') data = allAbonnements;
+    else if (view === 'devis') data = allDevis;
+    else return;
+    const st = sortState[view];
+    if (st && st.key && st.dir) {
+        data.sort((a, b) => {
+            let va = a[st.key], vb = b[st.key];
+            if (va === undefined || va === null) va = '';
+            if (vb === undefined || vb === null) vb = '';
+            const cmp = typeof va === 'number'
+                ? va - vb
+                : String(va).localeCompare(String(vb), 'fr', { numeric: true });
+            return st.dir === 'asc' ? cmp : -cmp;
+        });
+    }
+    // Re-render
+    if (view === 'clients') renderClients();
+    else if (view === 'articles') renderArticles();
+    else if (view === 'factures') renderFactures();
+    else if (view === 'reglements') renderReglements();
+    else if (view === 'abonnements') renderAbonnements();
+    else if (view === 'devis') renderDevis();
+}
+function updateSortUI(view) {
+    const st = sortState[view];
+    if (view === 'clients') {
+        document.querySelectorAll('.sort-btn').forEach(btn => {
+            btn.classList.remove('bg-indigo-600', 'text-white');
+            btn.classList.add('bg-slate-100');
+            const icon = btn.querySelector('.sort-icon');
+            if (icon) icon.className = 'sort-icon fas fa-sort text-[10px] ml-1';
+        });
+        if (st && st.key) {
+            const active = document.querySelector(`.sort-btn[onclick*="'${st.key}'"]`);
+            if (active) {
+                active.classList.remove('bg-slate-100');
+                active.classList.add('bg-indigo-600', 'text-white');
+                const icon = active.querySelector('.sort-icon');
+                if (icon) icon.className = 'sort-icon fas fa-sort-' + (st.dir === 'asc' ? 'up' : 'down') + ' text-[10px] ml-1';
+            }
+        }
+        return;
+    }
+    const thead = document.querySelector('#list-' + view + ' thead');
+    if (!thead) return;
+    thead.querySelectorAll('th').forEach(th => {
+        th.classList.remove('bg-indigo-50', 'text-indigo-700');
+        const icon = th.querySelector('.sort-icon');
+        if (icon) { icon.className = 'sort-icon fas fa-sort text-[10px] ml-1'; }
+    });
+    if (!st || !st.key) return;
+    const activeTh = thead.querySelector(`th[onclick*="'${st.key}'"]`);
+    if (!activeTh) return;
+    activeTh.classList.add('bg-indigo-50', 'text-indigo-700');
+    const icon = activeTh.querySelector('.sort-icon');
+    if (icon) icon.className = 'sort-icon fas fa-sort-' + (st.dir === 'asc' ? 'up' : 'down') + ' text-[10px] ml-1';
+}
+
+// ═══════ ARTICLE AUTOCOMPLETE ═══════
+let allArticlesMap = {};
+function initArtAutocomplete() {
+    if (!allArticles || !allArticles.length) return;
+    allArticlesMap = {};
+    allArticles.forEach(a => { allArticlesMap[a.art_cod] = a; });
+}
+function setupLineAutocomplete(prefix) {
+    document.querySelectorAll(`#${prefix}-lignes-body .lig-code`).forEach(inp => {
+        inp.oninput = function() {
+            const match = allArticlesMap[this.value];
+            if (match) {
+                const row = this.closest('tr');
+                row.querySelector('.lig-lib').value = match.art_lib || '';
+                row.querySelector('.lig-pu').value = match.art_pracT || 0;
+                calcTotal(prefix);
+            }
+        };
+    });
+    document.querySelectorAll(`#${prefix}-lignes-body .lig-lib`).forEach(inp => {
+        inp.oninput = function() {
+            const q = this.value.toLowerCase();
+            if (!q) return;
+            const match = allArticles.find(a => a.art_lib && a.art_lib.toLowerCase().includes(q));
+            if (match) {
+                const row = this.closest('tr');
+                row.querySelector('.lig-code').value = match.art_cod || '';
+                row.querySelector('.lig-pu').value = match.art_pracT || 0;
+                calcTotal(prefix);
+            }
+        };
+    });
+}
+function renderLigneAutocomplete(prefix) {
+    setTimeout(() => setupLineAutocomplete(prefix), 50);
+}
+
+// ═══════ REGLEMENT - INVOICE LINKING ═══════
+async function loadRegFactures(cli_cod) {
+    const sel = document.getElementById('reg_fac_num');
+    if (!sel) return;
+    if (!cli_cod) { sel.innerHTML = '<option value="">-- Aucune facture liée --</option>'; return; }
+    try {
+        const facs = await api('/api/factures?etat=VALIDE&cli_cod='+encodeURIComponent(cli_cod)+'&per_page=100');
+        sel.innerHTML = '<option value="">-- Aucune facture liée --</option>' +
+            (facs.items || []).map(f => `<option value="${f.fac_num}">#${f.fac_num} - ${f.cli_raso} - ${(f.fac_mt_ht*(1+20/100)).toFixed(2)} DH</option>`).join('');
+    } catch(e) { sel.innerHTML = '<option value="">-- Erreur chargement --</option>'; }
+}
+
+// ═══════ DEVIS ═══════
+
+function renderDevis() {
+    const tbody = document.getElementById('devis-body');
+    if (!allDevis.length) { tbody.innerHTML = '<tr><td colspan="7" class="p-8 text-center text-slate-400"><i class="fas fa-file-signature text-3xl mb-2 opacity-30 block"></i>Aucun devis</td></tr>'; return; }
+    tbody.innerHTML = allDevis.map(d => {
+        const ttc = d.dev_mt_ht * (1 + (d.dev_tva||20)/100);
+        const etatClass = d.dev_etat === 'VALIDE' ? 'bg-emerald-100 text-emerald-600' :
+            d.dev_etat === 'FACTURE' ? 'bg-blue-100 text-blue-600' : 'bg-orange-100 text-orange-600';
+        const checked = batchState.view === 'devis' && batchState.ids.has(d.dev_num) ? 'checked' : '';
+        return `<tr class="hover:bg-slate-50 transition">
+            <td class="p-2"><input type="checkbox" class="batch-check" onchange="batchToggle('devis',${d.dev_num},this.checked)" ${checked}></td>
+            <td class="p-4 font-bold">#${d.dev_num}</td>
+            <td class="p-4 text-sm">${d.dev_dat}</td>
+            <td class="p-4 font-bold">${esc(d.cli_raso)}</td>
+            <td class="p-4 text-right font-black">${ttc.toFixed(2)}</td>
+            <td class="p-4 text-center"><span class="px-3 py-1 rounded-full text-[10px] font-black uppercase ${etatClass}">${d.dev_etat}</span></td>
+            <td class="p-4 text-center">
+                <button onclick="openDevEdit(${d.dev_num})" class="text-indigo-600 mx-1" title="Modifier"><i class="fas fa-pen"></i></button>
+                <button onclick="window.open('/api/devis/${d.dev_num}/pdf')" class="text-emerald-600 mx-1" title="PDF"><i class="fas fa-file-pdf"></i></button>
+                <button onclick="openDevPrint(${d.dev_num})" class="text-slate-600 mx-1" title="Imprimer"><i class="fas fa-print"></i></button>
+                ${d.dev_etat === 'BROUILLON' ? `<button onclick="validerDev(${d.dev_num})" class="text-emerald-600 mx-1" title="Valider"><i class="fas fa-check-circle"></i></button>` : ''}
+                ${d.dev_etat === 'BROUILLON' ? `<button onclick="confirmDelete('devis',${d.dev_num})" class="text-red-500 mx-1" title="Supprimer"><i class="fas fa-trash"></i></button>` : ''}
+                ${d.dev_etat === 'VALIDE' ? `<button onclick="devToFac(${d.dev_num})" class="text-blue-600 mx-1" title="Transformer en facture"><i class="fas fa-file-invoice"></i></button>` : ''}
+            </td>
+        </tr>`;
+    }).join('');
+}
+
+async function validerDev(num) {
+    showConfirm('Valider', 'Valider ce devis ?', async () => {
+        await api('/api/devis/valider', {method:'POST', body: JSON.stringify([num])});
+        showToast('Devis validé'); loadData();
+    });
+}
+async function devToFac(num) {
+    showConfirm('Convertir', 'Créer une facture à partir de ce devis ?', async () => {
+        const r = await api('/api/devis/'+num+'/to-facture', {method:'POST'});
+        showToast('Facture #'+r.fac_num+' créée');
+        switchView('factures');
+        setTimeout(() => openFacEdit(r.fac_num), 400);
+    });
+}
+
+function newDevis() {
+    document.getElementById('dev_num_edit').value = '';
+    document.getElementById('dev-modal-title').innerText = 'Nouveau Devis';
+    document.getElementById('dev-modal-sub').innerText = 'Saisie des lignes';
+    document.getElementById('dev_dat').value = new Date().toISOString().slice(0,10);
+    document.getElementById('dev_echeance').value = '30 jours';
+    document.getElementById('dev_tva_rate').value = '20';
+    document.getElementById('dev_notes').value = '';
+    const sel = document.getElementById('dev_cli_cod');
+    if (sel.options.length <= 1) populateDevisClientSelect(sel);
+    sel.value = '';
+    document.getElementById('dev-lignes-body').innerHTML = '';
+    addLigne('dev'); calcTotal('dev');
+    markClean();
+    document.getElementById('modal-devis').classList.remove('hidden');
+    setTimeout(() => { const inp = document.querySelector('#dev-lignes-body .lig-code'); if (inp) inp.focus(); }, 200);
+}
+
+async function openDevEdit(num) {
+    const d = await api(`/api/devis/${num}`);
+    document.getElementById('dev_num_edit').value = num;
+    document.getElementById('dev-modal-title').innerText = 'Modifier Devis #'+num;
+    document.getElementById('dev-modal-sub').innerText = d.cli_raso;
+    document.getElementById('dev_dat').value = d.dev_dat;
+    document.getElementById('dev_echeance').value = d.dev_echeance || '30 jours';
+    document.getElementById('dev_tva_rate').value = d.dev_tva || 20;
+    document.getElementById('dev_notes').value = d.dev_notes || '';
+    const sel = document.getElementById('dev_cli_cod');
+    if (sel.options.length <= 1) await populateDevisClientSelect(sel);
+    sel.value = d.dev_cli_cod;
+    document.getElementById('dev-lignes-body').innerHTML = '';
+    if (d.lignes && d.lignes.length) d.lignes.forEach(l => addLigne('dev', l.lig_art_cod, l.lig_art_lib, l.lig_qte, l.lig_pu, l.lig_remise || 0));
+    else addLigne('dev');
+    calcTotal('dev');
+    markClean();
+    document.getElementById('modal-devis').classList.remove('hidden');
+}
+
+async function populateDevisClientSelect(sel) {
+    const clients = await api('/api/clients/all?actif=1');
+    sel.innerHTML = '<option value="">-- Client --</option>' + clients.map(c => `<option value="${c.cli_cod}">${esc(c.cli_raso)}</option>`).join('');
+    makeSearchable(sel.id);
+}
+
+async function submitDevis(valider) {
+    const cli = document.getElementById('dev_cli_cod').value;
+    if (!cli) return showToast('Client requis', false);
+    const lignes = [];
+    document.querySelectorAll('#dev-lignes-body .ligne-row').forEach(r => {
+        const pu = parseFloat(r.querySelector('.lig-pu').value) || 0;
+        if (pu > 0) lignes.push({art_cod: r.querySelector('.lig-code').value, art_lib: r.querySelector('.lig-lib').value, qte: parseFloat(r.querySelector('.lig-qte').value) || 1, pu, remise: parseFloat(r.querySelector('.lig-remise').value) || 0});
+    });
+    if (!lignes.length) return showToast('Ajoutez une ligne avec un prix', false);
+    setLoading(true);
+    const total = lignes.reduce((s, l) => s + l.qte * l.pu * (1 - (l.remise || 0) / 100), 0);
+    const dat = document.getElementById('dev_dat').value || new Date().toISOString().slice(0,10);
+    const echeance = document.getElementById('dev_echeance').value;
+    const tvaRate = parseFloat(document.getElementById('dev_tva_rate').value) || 20;
+    const body = { dev_cli_cod: cli, dev_dat: dat, dev_mt_ht: total, dev_tva: tvaRate, dev_echeance: echeance, dev_etat: 'BROUILLON', dev_type: 'PONCTUEL', lignes, dev_notes: document.getElementById('dev_notes').value };
+    const num = document.getElementById('dev_num_edit').value;
+    let newNum = num;
+    if (num) { await api(`/api/devis/${num}`, {method:'PUT', body: JSON.stringify(body)}); showToast('Devis modifié'); }
+    else { const r = await api('/api/devis', {method:'POST', body: JSON.stringify(body)}); newNum = r.dev_num; showToast('Devis créé'); }
+    if (valider) {
+        await api('/api/devis/valider', {method:'POST', body: JSON.stringify([parseInt(newNum)])});
+        showToast('Devis validé');
+    }
+    setLoading(false); markClean();
+    closeDev(); switchView('devis');
+}
+
+function closeDev() {
+    if (formDirty && !confirm('Des modifications non enregistrées seront perdues. Continuer ?')) return;
+    document.getElementById('modal-devis').classList.add('hidden'); markClean();
+}
+
+async function openDevPrint(num) {
+    const d = await api(`/api/devis/${num}/print`);
+    if (!d.fac) return;
+    const f = d.fac; const lignes = d.lignes || [];
+    const tva = f.dev_mt_ht * (f.dev_tva || 20) / 100;
+    const ttc = f.dev_mt_ht + tva;
+    const rows = lignes.length ? lignes.map((l,i) => `<tr${i%2?' class="bg-slate-50"':''}><td class="p-3">${i+1}</td><td class="p-3">${esc(l.lig_art_lib)}</td><td class="p-3 text-center">${l.lig_qte}</td><td class="p-3 text-right">${l.lig_pu.toFixed(2)}</td><td class="p-3 text-right font-bold">${(l.lig_qte*l.lig_pu).toFixed(2)}</td></tr>`).join('') : '<tr><td class="p-3" colspan="5">Prestation</td></tr>';
+    document.getElementById('print-content').innerHTML = `
+        <div style="font-family:sans-serif;max-width:800px;margin:auto">
+            <div style="display:flex;justify-content:space-between;border-bottom:3px solid #1e293b;padding-bottom:20px;margin-bottom:20px">
+                <div><h1 style="font-size:24px;margin:0">FATIGEST PRO</h1><p style="color:#64748b;font-size:12px;margin:2px 0">Société de services</p></div>
+                <div style="text-align:right"><h2 style="font-size:22px;margin:0;color:#6366f1">DEVIS N° ${f.dev_num}</h2><p style="color:#64748b;font-size:13px">Date: ${f.dev_dat}<br>Échéance: ${f.dev_echeance||'30 jours'}</p></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:24px;font-size:13px">
+                <div><b>Client:</b> ${esc(f.cli_raso)}<br>ICE: ${f.cli_ice||'---'}<br>IF: ${f.cli_if||'---'}<br>RC: ${f.cli_rc||'---'}<br>Adresse: ${esc(f.cli_adr||'')} ${esc(f.cli_vil||'')}</div>
+                <div style="text-align:right"><b>Tél:</b> ${f.cli_tel||'---'}<br><b>Email:</b> ${f.cli_email||'---'}</div>
+            </div>
+            <table style="width:100%;border-collapse:collapse;font-size:13px">
+                <thead><tr style="background:#1e293b;color:white"><th style="padding:10px;text-align:left">N°</th><th style="padding:10px;text-align:left">Désignation</th><th style="padding:10px;text-align:center">Qté</th><th style="padding:10px;text-align:right">P.U. HT</th><th style="padding:10px;text-align:right">Total HT</th></tr></thead>
+                <tbody>${rows}</tbody>
+                <tfoot>
+                    <tr style="font-weight:bold;border-top:2px solid #000"><td colspan="4" style="padding:10px;text-align:right">Total HT</td><td style="padding:10px;text-align:right">${f.dev_mt_ht.toFixed(2)}</td></tr>
+                    <tr><td colspan="4" style="padding:5px;text-align:right">TVA (${f.dev_tva||20}%)</td><td style="padding:5px;text-align:right">${tva.toFixed(2)}</td></tr>
+                    <tr style="font-weight:bold;font-size:16px;border-top:2px solid #000"><td colspan="4" style="padding:10px;text-align:right">Total TTC</td><td style="padding:10px;text-align:right">${ttc.toFixed(2)}</td></tr>
+                </tfoot>
+            </table>
+            <div style="margin-top:30px;padding-top:20px;border-top:1px solid #e2e8f0;font-size:12px;color:#64748b;display:flex;justify-content:space-between">
+                <div><b>Mode de règlement:</b> ${f.cli_mode_reg}<br><b>RIB:</b> ${f.cli_rib||'---'}<br><b>Banque:</b> ${f.cli_banque||'---'}</div>
+                <div>Arrêtée la présente à la somme de <b>${ttc.toFixed(2)} DH TTC</b><br>Échéance: ${f.dev_echeance||'30 jours'}</div>
+            </div>
+        </div>`;
+    document.getElementById('modal-print').classList.remove('hidden');
+}
+
+// ═══════ ACTIONS ═══════
+function confirmDelete(type,id){
+    const labels={clients:'ce client',articles:'cet article',factures:'cette facture',devis:'ce devis',reglements:'ce règlement'};
+    showConfirm('Confirmer la suppression', `Supprimer ${labels[type]||'cet élément'} ?`, ()=>{
+        const e={clients:`/api/clients/${id}`,articles:`/api/articles/${id}`,factures:`/api/factures/${id}`,devis:`/api/devis/${id}`,reglements:`/api/reglements/${id}`};
+        api(e[type],{method:'DELETE'}).then(()=>{showToast('Supprimé');loadData();});
+    });
+}
+
+// ═══════ EXPORT CSV ═══════
+function exportCSV(type){
+    let rows,headers;
+    if(type==='clients'){headers=['Code','Raison Sociale','ICE','IF','RC','Patente','Tél','Email','Ville','Mode Règlement'];rows=allClients.map(c=>[c.cli_cod,c.cli_raso,c.cli_ice,c.cli_if,c.cli_rc,c.cli_patente,c.cli_tel,c.cli_email,c.cli_vil,c.cli_mode_reg]);}
+    else if(type==='articles'){headers=['Code','Libellé','Famille','Prix Revient','Prix Vente','Stock'];rows=allArticles.map(a=>[a.art_cod,a.art_lib,a.art_faar,a.art_prveT,a.art_pracT,a.art_stk]);}
+    else if(type==='factures'){headers=['N°','Date','Client','Montant HT','TVA','TTC','État'];rows=allFactures.map(f=>[f.fac_num,f.fac_dat,f.cli_raso,f.fac_mt_ht,f.fac_mt_ht*(f.fac_tva||20)/100,f.fac_mt_ht*(1+(f.fac_tva||20)/100),f.fac_etat]);}
+    else if(type==='devis'){headers=['N°','Date','Client','Montant HT','TVA','TTC','État'];rows=(allDevis||[]).map(d=>[d.dev_num,d.dev_dat,d.cli_raso,d.dev_mt_ht,d.dev_mt_ht*(d.dev_tva||20)/100,d.dev_mt_ht*(1+(d.dev_tva||20)/100),d.dev_etat]);}
+    else if(type==='reglements'){headers=['N°','Date','Client','Montant','Mode','Référence','Facture'];rows=allReglements.map(r=>[r.reg_id,r.reg_dat,r.cli_raso,r.reg_mt,r.reg_mode,r.reg_ref,r.reg_fac_num||'']);}
+    else if(type==='abonnements'){headers=['Client','Cadence','Montant','Prochaine Échéance'];rows=allAbonnements.map(a=>[a.cli_raso,a.cli_abo_cadence,a.cli_abo_montant,a.cli_abo_next||'']);}
+    else return;
+    let csv=headers.join(';')+'\n'+rows.map(r=>r.map(v=>`"${v??''}"`).join(';')).join('\n');
+    const BOM='\uFEFF'; const blob=new Blob([BOM+csv],{type:'text/csv;charset=utf-8'}); const a=document.createElement('a');
+    a.href=URL.createObjectURL(blob); a.download=`${type}_${new Date().toISOString().slice(0,10)}.csv`; a.click();
+}
+
+// ═══════ INIT ═══════
+async function initArtList(){
+    try{const arts=await api('/api/articles'); allArticles = arts.items || arts;
+        const dl=document.createElement('datalist');dl.id='art-list';
+        allArticles.forEach(a=>{const o=document.createElement('option');o.value=a.art_cod;o.label=a.art_lib;dl.appendChild(o)});document.body.appendChild(dl);
+        initArtAutocomplete();
+    }catch(e){}
+}
+// Patch init to initialize article autocomplete after loadData
+const origLoadData = loadData;
+loadData = function() {
+    const r = origLoadData.apply(this, arguments);
+    if (r && r.then) r.then(() => { initArtAutocomplete(); });
+    return r;
+};
+if (TOKEN) { loadData(); initArtList(); }
+</script>
+</body>
+</html>
